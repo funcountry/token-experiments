@@ -1,0 +1,30 @@
+{
+  "name": "fcp",
+  "version": "0.0.3",
+  "main": "./build/cli.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p ./src",
+    "watch": "tsc -w -p ./src",
+    "format": "prettier --loglevel warn --write \"**/*.{ts,js,json,yaml}\"",
+    "format:check": "prettier --loglevel warn --check \"**/*.{ts,js,json,yaml}\"",
+    "lint": "eslint \"src/**/*.ts\" --fix",
+    "lint:check": "eslint \"src/**/*.ts\"",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@metaplex/js": "^4.12.0",
+    "@solana/spl-token": "^0.2.0",
+    "@solana/wallet-adapter-base": "^0.9.5",
+    "@solana/wallet-adapter-wallets": "^0.16.1",
+    "@solana/web3.js": "^1.43.1",
+    "arweave": "^1.10.23",
+    "node-fetch": "^3.2.4",
+    "pg-promise": "^10.11.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.16.0",
+    "eslint-config-prettier": "^8.5.0"
+  }
+}

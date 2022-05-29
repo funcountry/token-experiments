@@ -70,11 +70,14 @@ const run = async() => {
 	console.log("CreateMetadataV2");
 	console.log(createMetadatatx);
 
-    const tx = new solana.Transaction({feePayer: kp.publicKey});
-    tx.add(createMetadatatx);
+    // const tx = new solana.Transaction({feePayer: kp.publicKey});
+    // tx.add(createMetadatatx);
+    //
+    console.log(kp);
+    // console.log(kp.toBase58));
 
 	const createTxDetails = await solana.sendAndConfirmTransaction(
-        connection, tx, [kp]);
+        connection, createMetadatatx, [kp]);
 	console.log(createTxDetails);
 
 

@@ -1,0 +1,6 @@
+*.log
+package-lock.json
+*.swp
+node_modules
+*.lock
+key.json
