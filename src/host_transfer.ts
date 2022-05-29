@@ -12,9 +12,10 @@ const config = require('../config.json');
 
 
 const run = async() => {
-    const tm = new ht.HoldemTokenManager(require('../key.json'), config.solana_cluster);
+    const tm = new ht.HoldemTokenManager(require('../key.json'), config.solana_cluster, config.holdem_token, config.holdem_payer_address);
     const db = await event_data.connect();
 
+    await tm.setup();
     tm.grant("6eC4TmiBUHUoEANpBqogcFsrCKM7dEafxQofiQjinZdA", 1000);
     // await event_data.get_games(db).then((games:Array<event_data.Game>) => {
     //     games.forEach((game:event_data.Game) => {
