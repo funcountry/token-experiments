@@ -12,9 +12,7 @@ import * as event_data from './helpers/event_data';
 const run = async() => {
     const db = await event_data.connect();
 
-    event_data.get_games(db).then((games:Array<event_data.Game>) => {
-        // console.log(games)
-
+    await event_data.get_games(db).then((games:Array<event_data.Game>) => {
         games.forEach((game:event_data.Game) => {
             event_data.get_host_holdem_grant(db, game.game_id).then(
                 (grant:event_data.PlayerGrant) => {
