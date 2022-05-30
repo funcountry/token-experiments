@@ -28,7 +28,7 @@ const run = async() => {
                         // tm.grant(l
                         if(grant.solana_wallet) {
                             console.log("Has wallet");
-                            tm.grant(grant.solana_wallet, 1).then(() => {
+                            tm.grant(grant.solana_wallet, 2000).then(() => {
                                 console.log("GRANTED");
                                 event_data.complete_host_holdem_grant(db, grant.grant_id).then(() => {
                                     console.log("Updated");

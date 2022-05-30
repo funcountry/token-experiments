@@ -1,6 +1,6 @@
 {
-    "solana_cluster": "mainnet-beta",
+    "solana_cluster": "devnet",
     "pinataJwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIxY2E0N2JiYy1iMWJkLTRlYjgtYTVhMy0yYTM0ZDllMWI3MTMiLCJlbWFpbCI6ImFtaXJAZnVuLmNvdW50cnkiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGluX3BvbGljeSI6eyJyZWdpb25zIjp",
-    "holdem_token": "FFw9M6C6evR6MFVVyZoXGVYUR51VsHuo8thgsuLfkgPU",
+    "holdem_token": "2bAi3aaZsySPCTKj6j26omRwL2yiWTiQCTt1Q4dv1RYo",
     "holdem_payer_address": "8uTjfQ3wZV1GFtZRPdkmMEUKckuiYrhu5bZ9qApfZo8C"
 }
