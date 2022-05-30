@@ -12,17 +12,24 @@ import * as event_data from './helpers/event_data';
 const run = async() => {
     const db = await event_data.connect();
 
-    await event_data.get_games(db).then((games:Array<event_data.Game>) => {
-        games.forEach((game:event_data.Game) => {
-            // event_data.get_host_holdem_grant(db, game.game_id).then(
-            //     (grant:event_data.PlayerGrant) => {
-            //         console.log("Found host grant for game", game.game_id);
-            // }).catch((e:any) => {
-            //     console.log("No host grant for game", game.game_id);
-            //     event_data.create_host_holdem_grant(db, game, 1000);
-            // });
-        });
-    });
+    const games:Array<event_data.Game> = await event_data.get_games(db);
+    console.log(games);
+
+
+    for(const game of games) {
+        const players:Array<event_data.Player> = await event_data.get_game_players(db, game.game_id);
+        // console.log(players);
+        for(const player of players) {
+
+            try {
+                const grant:event_data.PlayerGrant = await event_data.get_player_holdem_grant(db, game.game_id, player.player_id);
+            }
+            catch(e) {
+                console.log("Creating grant for player", player);
+                await event_data.create_player_holdem_grant(db, game, player, 500);
+            }
+        }
+    };
 };
 
 run();

@@ -1,6 +1,8 @@
 const pgp = require('pg-promise')();
 const uuid = require('uuid');
 
+const schema:string = "scratch_production";
+
 export type Game = {
     'game_id': string,
     'host_id': string,
@@ -22,7 +24,6 @@ export type PlayerGrant = {
 
 export type Player = {
     'player_id': string
-
 };
 
 
@@ -61,6 +62,18 @@ export async function get_games(db:any) {
     return data;
 }
 
+export async function get_game_players(db: any, game_id:string ) {
+    const data:Array<Player> = await db.any(`SELECT 
+        rh.user_id as player_id,
+        COUNT(DISTINCT rh.id)
+     FROM server_production.game_request_handled rh
+     WHERE 
+        rh.game_id=$1
+        AND rh.game_request_kind=\'table.bet\' GROUP BY rh.user_id;`, [game_id]);
+
+    return data;
+}
+
 export async function get_host_holdem_grant(db:any, game_id:string) {
     const grant:PlayerGrant = await db.one(`SELECT
         grants.id as grant_id,
@@ -71,7 +84,7 @@ export async function get_host_holdem_grant(db:any, game_id:string) {
         grants.solana_wallet as solana_wallet,
         grants.amount as amount
      FROM
-        scratch.player_grants as grants
+        ` + schema + `.player_grants as grants
      WHERE
         grants.game_id = $1
         AND grants.grant_type = \'host_holdem_grant\';`, game_id);
@@ -79,16 +92,42 @@ export async function get_host_holdem_grant(db:any, game_id:string) {
     return grant;
 }
 
+export async function get_player_holdem_grant(db:any, game_id:string, player_id:string) {
+    const grant:PlayerGrant = await db.one(`SELECT
+        grants.id as grant_id,
+        grants.game_id as game_id,
+        grants.player_id as player_id,
+        grants.grant_type as grant_type,
+        grants.grant_status as grant_status,
+        grants.solana_wallet as solana_wallet,
+        grants.amount as amount
+     FROM
+        ` + schema + `.player_grants as grants
+     WHERE
+        grants.game_id = $1
+        AND grants.player_id=$2
+        AND grants.grant_type = \'player_holdem_grant\';`, [game_id, player_id]);
+
+    return grant;
+}
+
 export async function create_host_holdem_grant(db:any, game:Game, amount:number) {
     const grant_id:string = uuid.v4();
     await db.none(`
-        INSERT INTO scratch.player_grants(id, game_id, player_id, grant_type, grant_status, amount) VALUES (
+        INSERT INTO ` + schema + `.player_grants(id, game_id, player_id, grant_type, grant_status, amount) VALUES (
             $1, $2, $3, \'host_holdem_grant\', \'new\', $4);`, [grant_id, game.game_id, game.host_id, amount]);
+}
+
+export async function create_player_holdem_grant(db:any, game:Game, player:Player, amount:number) {
+    const grant_id:string = uuid.v4();
+    await db.none(`
+        INSERT INTO ` + schema + `.player_grants(id, game_id, player_id, grant_type, grant_status, amount) VALUES (
+            $1, $2, $3, \'player_holdem_grant\', \'new\', $4);`, [grant_id, game.game_id, player.player_id, amount]);
 }
 
 export async function complete_host_holdem_grant(db:any, grant_id:string) {
     await db.none(`
-        UPDATE scratch.player_grants as grants SET
+        UPDATE ` + schema + `.player_grants as grants SET
             record_updated_ts = CURRENT_TIMESTAMP, grant_status='transfered'
         WHERE
             grants.id = $1`, grant_id)
