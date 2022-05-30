@@ -25,6 +25,7 @@ const run = async() => {
                 const grant:event_data.PlayerGrant = await event_data.get_player_holdem_grant(db, game.game_id, player.player_id);
             }
             catch(e) {
+                //TODO: AE _ Yeah, I know this is a bad way to do this.
                 console.log("Creating grant for player", player);
                 await event_data.create_player_holdem_grant(db, game, player, 500);
             }
