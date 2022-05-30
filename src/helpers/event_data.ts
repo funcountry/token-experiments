@@ -111,6 +111,22 @@ export async function get_player_holdem_grant(db:any, game_id:string, player_id:
     return grant;
 }
 
+export async function get_new_player_holdem_grants(db:any) {
+    return await db.any(`SELECT
+        grants.id as grant_id,
+        grants.game_id as game_id,
+        grants.player_id as player_id,
+        grants.grant_type as grant_type,
+        grants.grant_status as grant_status,
+        grants.solana_wallet as solana_wallet,
+        grants.amount as amount
+     FROM
+        ` + schema + `.player_grants as grants
+     WHERE
+        grants.grant_status=\'new\'
+        AND grants.grant_type = \'player_holdem_grant\';`);
+}
+
 export async function create_host_holdem_grant(db:any, game:Game, amount:number) {
     const grant_id:string = uuid.v4();
     await db.none(`
