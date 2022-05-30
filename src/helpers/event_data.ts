@@ -15,7 +15,8 @@ export type PlayerGrant = {
     'player_id': string,
     'game_id': string,
     'grant_status': string,
-    'grant_type': string
+    'grant_type': string,
+    'solana_wallet': string
 };
 
 export type Player = {
@@ -65,7 +66,8 @@ export async function get_host_holdem_grant(db:any, game_id:string) {
         grants.game_id as game_id,
         grants.player_id as player_id,
         grants.grant_type as grant_type,
-        grants.grant_status as grant_status
+        grants.grant_status as grant_status,
+        grants.solana_wallet as solana_wallet
      FROM
         scratch.player_grants as grants
      WHERE
@@ -80,4 +82,12 @@ export async function create_host_holdem_grant(db:any, game:Game, amount:number)
     await db.none(`
         INSERT INTO scratch.player_grants(id, game_id, player_id, grant_type, grant_status, amount) VALUES (
             $1, $2, $3, \'host_holdem_grant\', \'new\', $4);`, [grant_id, game.game_id, game.host_id, amount]);
+}
+
+export async function complete_host_holdem_grant(db:any, grant_id:string) {
+    await db.none(`
+        UPDATE scratch.player_grants as grants SET
+            record_updated_ts = CURRENT_TIMESTAMP, grant_status='transfered'
+        WHERE
+            grants.id = $1`, grant_id)
 }

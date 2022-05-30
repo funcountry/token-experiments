@@ -16,22 +16,35 @@ const run = async() => {
     const db = await event_data.connect();
 
     await tm.setup();
-    tm.grant("6eC4TmiBUHUoEANpBqogcFsrCKM7dEafxQofiQjinZdA", 1000);
-    // await event_data.get_games(db).then((games:Array<event_data.Game>) => {
-    //     games.forEach((game:event_data.Game) => {
-    //         event_data.get_host_holdem_grant(db, game.game_id).then(
-    //             (grant:event_data.PlayerGrant) => {
-    //                 if(grant.grant_status == "new") {
-    //                     console.log("NEW Found host grant for game", game.game_id);
+    // tm.grant("6eC4TmiBUHUoEANpBqogcFsrCKM7dEafxQofiQjinZdA", 1000);
+    await event_data.get_games(db).then((games:Array<event_data.Game>) => {
+        games.forEach((game:event_data.Game) => {
+            event_data.get_host_holdem_grant(db, game.game_id).then(
+                (grant:event_data.PlayerGrant) => {
+                    if(grant.grant_status == "new") {
+                        console.log("NEW Found host grant for game", game.game_id, game.host_id);
 
-    //                     // await ht.grant(kp, 
-    //                     tm.grant(l
-    //                 }
-    //         }).catch((e:any) => {
-    //             console.log("No host grant for game", game.game_id);
-    //         });
-    //     });
-    // });
+                        // await ht.grant(kp, 
+                        // tm.grant(l
+                        if(grant.solana_wallet) {
+                            console.log("Has wallet");
+                            tm.grant(grant.solana_wallet, 1).then(() => {
+                                console.log("GRANTED");
+                                event_data.complete_host_holdem_grant(db, grant.grant_id).then(() => {
+                                    console.log("Updated");
+                                });
+                            });
+                        }
+                        else {
+                            // console.log("NO WALLET");
+                        }
+
+                    }
+            }).catch((e:any) => {
+                console.log("No host grant for game", game.game_id);
+            });
+        });
+    });
 };
 
 run();

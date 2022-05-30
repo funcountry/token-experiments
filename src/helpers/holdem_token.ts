@@ -9,16 +9,6 @@ function load_key(key:any) {
 }
 
 async function transfer(mint:any, kp: any, toAddress: string, connection: any, amount: number) {
-    // const mintPublicKey = new solana.PublicKey(tokenMintAddress);
-    // console.log(splToken);
-    // console.log(splToken.Token);
-    // const mintToken = new splToken.Token(
-    //     connection,
-    //     mintPublicKey,
-    //     splToken.TOKEN_PROGRAM_ID,
-    //     wallet.payer // the wallet owner will pay to transfer and to create recipients associated token account if it does not yet exist.
-    // );
-
     const fromTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
         connection,
         kp,
@@ -46,33 +36,6 @@ async function transfer(mint:any, kp: any, toAddress: string, connection: any, a
         amount
     );
     console.log(res);
-
-    // const receiverAccount = await splToken.getAccount(connection, toTokenAccount.address);
-    // console.log("Receiver account");
-    // console.log(receiverAccount.address.toString());
-
-
-//     instructions.push(
-//         splToken.Token.createTransferInstruction(
-//             splToken.TOKEN_PROGRAM_ID,
-//             fromTokenAccount.address,
-//             associatedDestinationTokenAddr,
-//             wallet.publicKey,
-//             [],
-//             amount
-//         )
-//     );
-
-//     const transaction = new solana.Transaction().add(...instructions);
-//     transaction.feePayer = wallet.publicKey;
-//     transaction.recentBlockhash = (await connection.getRecentBlockhash()).blockhash;
-
-//     const transactionSignature = await connection.sendRawTransaction(
-//         transaction.serialize(),
-//         { skipPreflight: true }
-//     );
-
-//     await connection.confirmTransaction(transactionSignature);
 }
 
 
@@ -97,6 +60,7 @@ export class HoldemTokenManager {
     }
 
     public async setup() {
+        console.log("Initializing token manager");
         this.mint = await splToken.getMint(this.connection, this.token);
         console.log("Got mint", this.mint);
     }
