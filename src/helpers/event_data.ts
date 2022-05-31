@@ -75,6 +75,24 @@ export async function get_game_players(db: any, game_id:string ) {
     return data;
 }
 
+export async function get_one_game_grant(db:any, game_id:string, grantType:string) {
+    const grant:PlayerGrant = await db.one(`SELECT
+        grants.id as grant_id,
+        grants.game_id as game_id,
+        grants.player_id as player_id,
+        grants.grant_type as grant_type,
+        grants.grant_status as grant_status,
+        grants.solana_wallet as solana_wallet,
+        grants.amount as amount
+     FROM
+        ` + schema + `.player_grants as grants
+     WHERE
+        grants.game_id = $1
+        AND grants.grant_type = $2;`, [game_id, grantType]);
+
+    return grant;
+}
+
 export async function get_host_holdem_grant(db:any, game_id:string) {
     const grant:PlayerGrant = await db.one(`SELECT
         grants.id as grant_id,
@@ -112,6 +130,26 @@ export async function get_player_holdem_grant(db:any, game_id:string, player_id:
     return grant;
 }
 
+export async function get_grants(db:any, grantStatus:string, grantType:string) {
+    return await db.any(`SELECT
+        grants.id as grant_id,
+        grants.game_id as game_id,
+        grants.player_id as player_id,
+        grants.grant_type as grant_type,
+        grants.grant_status as grant_status,
+        wallet.solana_wallet as solana_wallet,
+        grants.amount as amount
+     FROM
+        ` + schema + `.player_grants as grants
+        LEFT JOIN
+        ` + schema + `.player_wallet as wallet ON grants.player_id=wallet.player_id
+     WHERE
+        grants.grant_status=\'` + grantStatus + `\'
+        AND (grants.grant_type=\'` + grantType + `\')`);
+    
+}
+
+
 export async function get_new_holdem_grants(db:any) {
     return await db.any(`SELECT
         grants.id as grant_id,
@@ -126,7 +164,8 @@ export async function get_new_holdem_grants(db:any) {
         LEFT JOIN
         ` + schema + `.player_wallet as wallet ON grants.player_id=wallet.player_id
      WHERE
-        grants.grant_status=\'new\'`);
+        grants.grant_status=\'new\'
+        AND (grants.grant_type=\'player_holdem_grant\' OR grants.grant_type=\'host_holdem_grant\')`);
 }
 
 export async function get_new_player_holdem_grants(db:any) {
@@ -172,6 +211,13 @@ export async function create_host_holdem_grant(db:any, game:Game, amount:number)
     await db.none(`
         INSERT INTO ` + schema + `.player_grants(id, game_id, player_id, grant_type, grant_status, amount) VALUES (
             $1, $2, $3, \'host_holdem_grant\', \'new\', $4);`, [grant_id, game.game_id, game.host_id, amount]);
+}
+
+export async function create_host_nft_grant(db:any, game:Game) {
+    const grant_id:string = uuid.v4();
+    await db.none(`
+        INSERT INTO ` + schema + `.player_grants(id, game_id, player_id, grant_type, grant_status, amount) VALUES (
+            $1, $2, $3, \'host_nft_grant\', \'new\', $4);`, [grant_id, game.game_id, game.host_id, 1]);
 }
 
 export async function create_player_holdem_grant(db:any, game:Game, player:Player, amount:number) {
