@@ -17,7 +17,7 @@ const run = async() => {
 
     await tm.setup();
     const grants:Array<event_data.PlayerGrant>
-        = await event_data.get_new_player_holdem_grants(db);
+        = await event_data.get_new_holdem_grants(db);
     for(const grant of grants) {
         // console.log(grant);
         if(grant.solana_wallet) {

@@ -1,5 +1,6 @@
 const pgp = require('pg-promise')();
 import * as event_data from './helpers/event_data';
+const config = require('../config.json');
 
 /*
  * Process:
@@ -10,19 +11,20 @@ import * as event_data from './helpers/event_data';
 
 
 const run = async() => {
-    const db = await event_data.connect();
+    const db = await event_data.connect(config.schema);
 
-    await event_data.get_games(db).then((games:Array<event_data.Game>) => {
-        games.forEach((game:event_data.Game) => {
-            event_data.get_host_holdem_grant(db, game.game_id).then(
-                (grant:event_data.PlayerGrant) => {
-                    console.log("Found host grant for game", game.game_id);
-            }).catch((e:any) => {
-                console.log("No host grant for game", game.game_id);
-                event_data.create_host_holdem_grant(db, game, 1000);
-            });
-        });
-    });
+    const games:Array<event_data.Game> = await event_data.get_games(db);
+
+    for(const game of games) {
+        try {
+            const grant:event_data.PlayerGrant = await event_data.get_host_holdem_grant(db, game.game_id);
+            console.log("Found host grant for game", game.game_id);
+        }
+        catch(e) {
+            console.log("No host grant for game", game.game_id);
+            event_data.create_host_holdem_grant(db, game, 1000000000000);
+        }
+    }
 };
 
 run();

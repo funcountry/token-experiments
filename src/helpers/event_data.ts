@@ -112,6 +112,23 @@ export async function get_player_holdem_grant(db:any, game_id:string, player_id:
     return grant;
 }
 
+export async function get_new_holdem_grants(db:any) {
+    return await db.any(`SELECT
+        grants.id as grant_id,
+        grants.game_id as game_id,
+        grants.player_id as player_id,
+        grants.grant_type as grant_type,
+        grants.grant_status as grant_status,
+        wallet.solana_wallet as solana_wallet,
+        grants.amount as amount
+     FROM
+        ` + schema + `.player_grants as grants
+        LEFT JOIN
+        ` + schema + `.player_wallet as wallet ON grants.player_id=wallet.player_id
+     WHERE
+        grants.grant_status=\'new\'`);
+}
+
 export async function get_new_player_holdem_grants(db:any) {
     return await db.any(`SELECT
         grants.id as grant_id,
