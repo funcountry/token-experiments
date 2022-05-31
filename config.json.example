@@ -1,0 +1,7 @@
+{
+    "schema": "scratch_dev",
+    "solana_cluster": "devnet",
+    "pinataJwt": "<API KEY>",
+    "holdem_token": "<TOKEN ADDRESS>",
+    "holdem_payer_address": "<WALLET ADDRESS>"
+}
