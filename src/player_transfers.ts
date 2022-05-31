@@ -13,7 +13,7 @@ const config = require('../config.json');
 
 const run = async() => {
     const tm = new ht.HoldemTokenManager(require('../key.json'), config.solana_cluster, config.holdem_token, config.holdem_payer_address);
-    const db = await event_data.connect();
+    const db = await event_data.connect(config.schema);
 
     await tm.setup();
     const grants:Array<event_data.PlayerGrant>
@@ -22,40 +22,18 @@ const run = async() => {
         // console.log(grant);
         if(grant.solana_wallet) {
             console.log("Has wallet");
+            
+            console.log("Transfering", grant.amount, "to", grant.solana_wallet);
+
+            await tm.grant(grant.solana_wallet, grant.amount);
+            await event_data.complete_grant(db, grant.grant_id, grant.solana_wallet);
+
+            console.log("Updated");
         }
         else {
             console.log("NO WALLET");
         }
     }
-    // tm.grant("6eC4TmiBUHUoEANpBqogcFsrCKM7dEafxQofiQjinZdA", 1000);
-    // await event_data.get_games(db).then((games:Array<event_data.Game>) => {
-    //     games.forEach((game:event_data.Game) => {
-    //         event_data.get_host_holdem_grant(db, game.game_id).then(
-    //             (grant:event_data.PlayerGrant) => {
-    //                 if(grant.grant_status == "new") {
-    //                     console.log("NEW Found host grant for game", game.game_id, game.host_id);
-
-    //                     // await ht.grant(kp, 
-    //                     // tm.grant(l
-    //                     if(grant.solana_wallet) {
-    //                         console.log("Has wallet");
-    //                         tm.grant(grant.solana_wallet, grant.amount).then(() => {
-    //                             console.log("GRANTED");
-    //                             event_data.complete_host_holdem_grant(db, grant.grant_id).then(() => {
-    //                                 console.log("Updated");
-    //                             });
-    //                         });
-    //                     }
-    //                     else {
-    //                         // console.log("NO WALLET");
-    //                     }
-
-    //                 }
-    //         }).catch((e:any) => {
-    //             console.log("No host grant for game", game.game_id);
-    //         });
-    //     });
-    // });
 };
 
 run();

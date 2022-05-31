@@ -1,7 +1,7 @@
 const pgp = require('pg-promise')();
 const uuid = require('uuid');
 
-const schema:string = "scratch_production";
+let schema:string = "";
 
 export type Game = {
     'game_id': string,
@@ -27,7 +27,8 @@ export type Player = {
 };
 
 
-export async function connect() {
+export async function connect(_schema:string) {
+    schema = _schema;
     return pgp({
         host: 'stats-production.c6azlopsua2y.us-east-2.redshift.amazonaws.com',
         port: 5439,
@@ -118,13 +119,35 @@ export async function get_new_player_holdem_grants(db:any) {
         grants.player_id as player_id,
         grants.grant_type as grant_type,
         grants.grant_status as grant_status,
-        grants.solana_wallet as solana_wallet,
+        wallet.solana_wallet as solana_wallet,
         grants.amount as amount
      FROM
         ` + schema + `.player_grants as grants
+        LEFT JOIN
+        ` + schema + `.player_wallet as wallet ON grants.player_id=wallet.player_id
      WHERE
         grants.grant_status=\'new\'
         AND grants.grant_type = \'player_holdem_grant\';`);
+}
+
+export async function dev_setup_wallets(db:any, devWallets:Array<string>) {
+    console.log("Setting up dev wallets");
+    const grants:Array<PlayerGrant> = await db.any(`SELECT 
+        DISTINCT grants.player_id as player_id
+    FROM
+        ` + schema + `.player_grants as grants
+    WHERE
+        grants.solana_wallet IS NULL`);
+
+   for(const grant of grants) {
+       const wallet = devWallets[Math.floor(Math.random() * devWallets.length)];
+       console.log(wallet);
+       console.log(grant);
+
+       await db.none(`INSERT INTO ` + schema + `.player_wallet 
+           (id, player_id, solana_wallet) VALUES($1, $2, $3);`, 
+           [uuid.v4(), grant.player_id, wallet]);
+   }
 }
 
 export async function create_host_holdem_grant(db:any, game:Game, amount:number) {
@@ -141,10 +164,10 @@ export async function create_player_holdem_grant(db:any, game:Game, player:Playe
             $1, $2, $3, \'player_holdem_grant\', \'new\', $4);`, [grant_id, game.game_id, player.player_id, amount]);
 }
 
-export async function complete_host_holdem_grant(db:any, grant_id:string) {
+export async function complete_grant(db:any, grant_id:string, solana_wallet:string) {
     await db.none(`
         UPDATE ` + schema + `.player_grants as grants SET
-            record_updated_ts = CURRENT_TIMESTAMP, grant_status='transfered'
+            record_updated_ts = CURRENT_TIMESTAMP, grant_status='transfered', solana_wallet=$2
         WHERE
-            grants.id = $1`, grant_id)
+            grants.id = $1`, [grant_id, solana_wallet])
 }

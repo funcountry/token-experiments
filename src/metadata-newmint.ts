@@ -2,7 +2,7 @@ const solana = require('@solana/web3.js');
 const splToken = require('@solana/spl-token');
 const mplTokenMetadata = require("@metaplex-foundation/mpl-token-metadata");
 const metaplex = require('@metaplex/js');
-const key = require('./key.json');
+const key = require('../key.json');
 
 const run = async() => {
     const kp = solana.Keypair.fromSecretKey(Buffer.from(key));
@@ -30,7 +30,7 @@ const run = async() => {
     console.log("FromTokenAccount");
     console.log(fromTokenAccount);
 
-    let signature = await splToken.mintTo(connection, kp, mint, fromTokenAccount.address, kp, 1000000);
+    let signature = await splToken.mintTo(connection, kp, mint, fromTokenAccount.address, kp, 1500000000000000000);
     console.log(signature);
 
     const tokBalance = await connection.getTokenAccountBalance(fromTokenAccount.address);

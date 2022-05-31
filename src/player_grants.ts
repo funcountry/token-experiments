@@ -1,5 +1,6 @@
 const pgp = require('pg-promise')();
 import * as event_data from './helpers/event_data';
+const config = require('../config.json');
 
 /*
  * Process:
@@ -10,7 +11,7 @@ import * as event_data from './helpers/event_data';
 
 
 const run = async() => {
-    const db = await event_data.connect();
+    const db = await event_data.connect(config.schema);
 
     const games:Array<event_data.Game> = await event_data.get_games(db);
     console.log(games);
@@ -27,7 +28,7 @@ const run = async() => {
             catch(e) {
                 //TODO: AE _ Yeah, I know this is a bad way to do this.
                 console.log("Creating grant for player", player);
-                await event_data.create_player_holdem_grant(db, game, player, 500);
+                await event_data.create_player_holdem_grant(db, game, player, 500000000000);
             }
         }
     };
