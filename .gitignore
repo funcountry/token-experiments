@@ -8,3 +8,4 @@ config.json
 *.dev
 *.prod
 *.bak
+.DS_Store

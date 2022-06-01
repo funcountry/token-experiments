@@ -36,8 +36,6 @@ async function uploadMedia(media:string, jwt:string) {
 
 export async function pinataUpload(
     image: string,
-    animation: string,
-    manifestBuffer: Buffer,
     jwt: string,
     gateway: string | null,
 ) {
@@ -46,23 +44,14 @@ export async function pinataUpload(
     const imageCid = await uploadMedia(image, jwt);
     console.log('uploaded image: ', `${gatewayUrl}/ipfs/${imageCid}`);
     // await sleep(500);
+    //
 
-    // let animationCid:any = undefined;
-    // let animationUrl:any = undefined;
-    // if (animation) {
-    //     animationCid = await uploadMedia(animation, jwt);
-    //     console.log('uploaded image: ', `${gatewayUrl}/ipfs/${animationCid}`);
-    // }
+    const mediaUrl = `${gatewayUrl}/ipfs/${imageCid}`;
+    return mediaUrl;
 
-    // const mediaUrl = `${gatewayUrl}/ipfs/${imageCid}`;
-    // if (animationCid) {
-    //     animationUrl = `${gatewayUrl}/ipfs/${animationCid}`;
-    // }
 
     // const manifestJson = await setImageUrlManifest(
-    //     manifestBuffer.toString('utf8'),
-    //     mediaUrl,
-    //     animationUrl,
+    //     manifestBuffer.toString('utf8')
     // );
 
     // fs.writeFileSync('tempJson.json', JSON.stringify(manifestJson));

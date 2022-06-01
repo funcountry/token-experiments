@@ -1,0 +1,6 @@
+{
+    "host_nft": {
+        "image": "./nfts/assets/host_chip.gif",
+        "metadata": "./nfts/assets/host_chip.json"
+    }
+}
