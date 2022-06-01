@@ -1,0 +1,41 @@
+{
+  "name": "PLAYER NFT Citizen's Token",
+  "symbol": "HOLDEM",
+  "description": "Player in Fun Country Poker Citizen's Game",
+  "seller_fee_basis_points": 0,
+  "image": "7.gif",
+  "external_url": "https://fun.country",
+  "attributes": [
+    {
+      "trait_type": "web",
+      "value": "yes"
+    },
+    {
+      "trait_type": "mobile",
+      "value": "yes"
+   },
+   {
+      "trait_type": "extension",
+      "value": "yes"
+    }
+  ],
+  "collection": {
+     "name": "Fun Country Poker Citizen's NFT",
+     "family": "Fun Country"
+  },
+  "properties": {
+    "files": [
+      {
+        "uri": "7.gif",
+        "type": "image/gif"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "G1VoGE2StbKy3fGAQigc2irXA6uPTcmGRY3vyEpg4vBQ",
+        "share": 100
+      }
+    ]
+  }
+}
