@@ -78,7 +78,7 @@ async function transfer(mint:any, kp: any, toAddress: string, connection: any, a
 }
 
 
-export class HoldemTokenManager {
+export class NftManager {
     kp: any;
     connection: any;
     token: any;

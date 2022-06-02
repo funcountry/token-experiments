@@ -1,0 +1,28 @@
+{
+  "name": "${name}",
+  "symbol": "FCP",
+  "description": "Zombiees! is the most devastating battleground ever seen after an outbreak. 3,333 undead zombies crawl out of the bowels of the earth and form the Zombieverse. They are looking forward to the official game!",
+  "seller_fee_basis_points": 0,
+  "image": "${:",
+  "attributes": [
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://arweave.net/8IpZdXcBONZG3nWZtU8ggxB-lIu5waw3LbeXzaeMOZg?ext=png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE",
+        "share": 100
+      }
+    ]
+  },
+  "collection": {
+    "name": "Zombiees!",
+    "family": "Zombiees!"
+  }
+}
