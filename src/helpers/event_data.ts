@@ -26,6 +26,11 @@ export type Player = {
     'player_id': string
 };
 
+export type PlayerWallet = {
+    'player_id': string,
+    'solana_wallet': string
+};
+
 
 export async function connect(_schema:string) {
     schema = _schema;
@@ -233,4 +238,47 @@ export async function complete_grant(db:any, grant_id:string, solana_wallet:stri
             record_updated_ts = CURRENT_TIMESTAMP, grant_status='transfered', solana_wallet=$2
         WHERE
             grants.id = $1`, [grant_id, solana_wallet])
+}
+
+export async function pull_wallets(db:any) {
+    console.log("Pulling wallets");
+    const prodWallets:Array<PlayerWallet> = await db.any(`SELECT
+        id as player_id,
+        account_solana as solana_wallet
+    FROM server_production.users
+    WHERE account_solana IS NOT NULL`);
+
+    for(const prodWallet of prodWallets) {
+        const scratchWallets:Array<PlayerWallet> = await db.any(`SELECT 
+            id,
+            player_id,
+            solana_wallet
+        FROM 
+            ` + schema + `.player_wallet as player_wallet
+        WHERE
+            player_id=$1
+        `, [prodWallet.player_id]);
+
+        if(scratchWallets.length > 0) {
+            const scratchWallet:PlayerWallet = scratchWallets[0];
+            console.log("Found existing scratch wallet", scratchWallet, prodWallet);
+
+            if(scratchWallet.solana_wallet != prodWallet.solana_wallet) {
+                console.log("Updating existing scratch wallet");
+                await db.none(`UPDATE ` + schema + `.player_wallet 
+                   SET solana_wallet=$1 WHERE player_id=$2`, 
+                    [prodWallet.solana_wallet, prodWallet.player_id]);
+            }
+            else {
+                console.log("Scratch and prod match");
+            }
+        }
+        else {
+            console.log("No existing scratch wallet", prodWallet);
+
+            await db.none(`INSERT INTO ` + schema + `.player_wallet 
+               (id, player_id, solana_wallet) VALUES($1, $2, $3);`, 
+                [uuid.v4(), prodWallet.player_id, prodWallet.solana_wallet]);
+        }
+    }
 }

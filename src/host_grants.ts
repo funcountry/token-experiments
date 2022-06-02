@@ -13,18 +13,20 @@ const config = require('../config.json');
 const run = async() => {
     const db = await event_data.connect(config.schema);
 
-    const games:Array<event_data.Game> = await event_data.get_games(db);
+    await event_data.pull_wallets(db);
 
-    for(const game of games) {
-        try {
-            const grant:event_data.PlayerGrant = await event_data.get_host_holdem_grant(db, game.game_id);
-            console.log("Found host grant for game", game.game_id);
-        }
-        catch(e) {
-            console.log("No host grant for game", game.game_id);
-            event_data.create_host_holdem_grant(db, game, 1000000000000);
-        }
-    }
+    // const games:Array<event_data.Game> = await event_data.get_games(db);
+
+    // for(const game of games) {
+    //     try {
+    //         const grant:event_data.PlayerGrant = await event_data.get_host_holdem_grant(db, game.game_id);
+    //         console.log("Found host grant for game", game.game_id);
+    //     }
+    //     catch(e) {
+    //         console.log("No host grant for game", game.game_id);
+    //         event_data.create_host_holdem_grant(db, game, 1000000000000);
+    //     }
+    // }
 };
 
 run();

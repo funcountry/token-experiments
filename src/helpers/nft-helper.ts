@@ -77,6 +77,8 @@ async function transfer(mint:any, kp: any, toAddress: string, connection: any, a
     console.log(res);
 }
 
+async function  mintNft(mint: any, kp: any, 
+
 
 export class NftManager {
     kp: any;
