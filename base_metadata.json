@@ -1,15 +1,16 @@
 {
-  "name": "${name}",
+  "name": "<%= t.name %>",
   "symbol": "FCP",
-  "description": "Zombiees! is the most devastating battleground ever seen after an outbreak. 3,333 undead zombies crawl out of the bowels of the earth and form the Zombieverse. They are looking forward to the official game!",
+  "description": "<%= t.description %>",
   "seller_fee_basis_points": 0,
-  "image": "${:",
+  "image": "<%= t.uri %>",
+  "external_url": "https://fun.country",
   "attributes": [
   ],
   "properties": {
     "files": [
       {
-        "uri": "https://arweave.net/8IpZdXcBONZG3nWZtU8ggxB-lIu5waw3LbeXzaeMOZg?ext=png",
+        "uri": "<%= t.uri %>",
         "type": "image/png"
       }
     ],
@@ -22,7 +23,7 @@
     ]
   },
   "collection": {
-    "name": "Zombiees!",
-    "family": "Zombiees!"
+    "name": "Fun Country Poker NFT",
+    "family": "Fun Country"
   }
 }

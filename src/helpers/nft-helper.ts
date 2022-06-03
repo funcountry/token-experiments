@@ -1,5 +1,6 @@
 import * as pinata from './pinata';
 import fs from 'fs';
+import * as Eta from 'eta';
 
 const solana = require('@solana/web3.js');
 const splToken = require('@solana/spl-token');
@@ -77,7 +78,8 @@ async function transfer(mint:any, kp: any, toAddress: string, connection: any, a
     console.log(res);
 }
 
-async function  mintNft(mint: any, kp: any, 
+async function  mintNft() {
+}
 
 
 export class NftManager {
@@ -87,9 +89,18 @@ export class NftManager {
     mint: any;
     payer_address: any;
     wallet: any;
+    nftMap: any;
+    nftCache: any;
+    baseMetadata: any;
 
 
-    constructor(key:Object, network:string, token_address:string, payer_address:string) {
+    constructor(key:Object,
+        network:string,
+        token_address:string,
+        payer_address:string,
+        nftCacheFile:string,
+        nftMapFile:string,
+        _baseMetadata:object) {
         this.kp = load_key(key);
         this.connection = new solana.Connection(
             solana.clusterApiUrl(network),
@@ -98,19 +109,63 @@ export class NftManager {
 
         this.token = new solana.PublicKey(token_address);
         this.wallet = new anchor.Wallet(this.kp);
+
+        this.nftMap = JSON.parse(fs.readFileSync(nftMapFile).toString());
+        this.nftCache = JSON.parse(fs.readFileSync(nftCacheFile).toString());
+
+        this.baseMetadata = _baseMetadata;
     }
 
     public async setup() {
-        console.log("Initializing token manager");
+        console.log("Initializing NFT manager");
         this.mint = await splToken.getMint(this.connection, this.token);
         console.log("Got mint", this.mint);
     }
 
-    public async grant(toAddress:string, amount:number) {
-        console.log(this.mint);
-        console.log("Granting", amount, "tokens to", toAddress);
+    /*
+     * Sources of metadata and the order in which they are applied:
+     * Base - Every single NFT starts with this
+     * NFT - Each FNT can extend the base with its own custom attributes
+     * Instance - Specific to this instantiation of that NFT
+     *  Host's name
+     *  Date of tournament
+     */
+    public async mintNft(nftIdentifier:string) {
+        console.log("Minting", nftIdentifier);
 
-        await transfer(this.mint, this.kp, toAddress,
-            this.connection, amount);
+        const metadataFile:string = this.nftMap[nftIdentifier]['metadata'];
+        console.log(metadataFile);
+
+        const imageUri = this.nftCache[this.nftMap[nftIdentifier]['image']];
+
+        const extMetadata  = JSON.parse(fs.readFileSync(metadataFile).toString());
+        console.log(this.baseMetadata);
+        console.log(extMetadata);
+
+        const combinedMetadata = Object.assign(this.baseMetadata, extMetadata);
+
+        const _tempCombinedMetadata = JSON.stringify(combinedMetadata);
+        console.log(_tempCombinedMetadata);
+        
+        const _replacedTemplate:any = await Eta.render(_tempCombinedMetadata, {
+            uri: imageUri
+        }, {
+            'varName': 't'
+        });
+
+        console.log(_replacedTemplate);
+
+        const finalMetadata = JSON.parse(_replacedTemplate);
+        console.log("Final Metdata");
+        console.log(JSON.stringify(finalMetadata, null, 2));
     }
+
+
+    // public async grant(toAddress:string, amount:number) {
+    //     console.log(this.mint);
+    //     console.log("Granting", amount, "tokens to", toAddress);
+
+    //     await transfer(this.mint, this.kp, toAddress,
+    //         this.connection, amount);
+    // }
 }
