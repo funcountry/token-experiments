@@ -17,12 +17,13 @@ const run = async() => {
     const nftm = new nft_helper.NftManager(
         require('../key.json'),
         config.solana_cluster,
-        config.holdem_token,
         config.holdem_payer_address,
         nftCacheFile,
         nftMapFile,
         baseMetadata);
     console.log(nftm);
+
+    await nftm.setup();
 
     nftm.mintNft("host_nft");
     // nft_helper.uploadNfts(nftMapFile, nftCacheFile, config.pinataJwt);
