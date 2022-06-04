@@ -8,7 +8,7 @@ const config = require('../config.json');
 
 
 
-// const nft_json = "https://raw.githubusercontent.com/funcountry/token-data/main/nfts/citizens_v1/firstplace.json";
+const nft_json = "https://raw.githubusercontent.com/funcountry/token-data/main/nfts/citizens_v1/firstplace.json";
 
 
 

@@ -3,8 +3,6 @@
   "symbol": "FCPNFT",
   "seller_fee_basis_points": 0,
   "uri": "<%= t.offchain_metadata_uri %>",
-  "attributes": [
-  ],
   "creators": [
       {
           "address": "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE",

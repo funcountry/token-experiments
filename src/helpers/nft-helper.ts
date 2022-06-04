@@ -69,8 +69,26 @@ async function mintNft(mintAddress:any, kp: any, connection: any, onchainMetadat
     console.log("Metadata");
     console.log(metadata);
 
+    // onchainMetadata['creators'][0] = new mplTokenMetadata.Creator(onchainMetadata['creators'][0]);
+
     const metadataData = new mplTokenMetadata.DataV2(onchainMetadata);
     console.log(metadataData);
+    console.log(metadataData.creators);
+
+
+    const createMetadatatx = new mplTokenMetadata.CreateMetadataV2({ feePayer: kp.publicKey }, {
+        metadata: metadata,
+        metadataData: metadataData,
+        updateAuthority: kp.publicKey,
+        mintAuthority: kp.publicKey,
+        mint: mintAddress
+    });
+    console.log("CreateMetadataV2");
+    console.log(createMetadatatx);
+
+    const createTxDetails = await solana.sendAndConfirmTransaction(
+        connection, createMetadatatx, [kp]);
+    console.log(createTxDetails);
 
     // const toWallet = new solana.PublicKey(toAddress);
 
