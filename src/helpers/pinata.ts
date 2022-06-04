@@ -1,7 +1,9 @@
 import FormData from 'form-data';
+import * as request from 'request';
 // import node_fetch from 'node-fetch';
-import fetch from 'node-fetch';
+// import fetch from 'node-fetch';
 import fs from 'fs';
+// const fetch = require('node-fetch');
 
 
 // import log from 'loglevel';
@@ -18,7 +20,8 @@ async function uploadMedia(media:string, jwt:string) {
     const data = new FormData();
     data.append('file', fs.createReadStream(media));
 
-    const res = await fetch(`https://api.pinata.cloud/pinning/pinFileToIPFS`, {
+    const res = await request.post({
+        uri: `https://api.pinata.cloud/pinning/pinFileToIPFS`,
         headers: {
             Authorization: `Bearer ${jwt}`,
         },
@@ -26,9 +29,9 @@ async function uploadMedia(media:string, jwt:string) {
         body: data,
     });
 
-    const json:any = await res.json();
-    console.log(json);
-    return json.IpfsHash;
+    // const json:any = await res.json();
+    // console.log(json);
+    // return json.IpfsHash;
 }
 
 export async function pinataUpload(
