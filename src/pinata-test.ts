@@ -5,6 +5,7 @@ import fs from 'fs';
 
 
 console.log(pinata);
+console.log(process.cwd());
 
 
 const run = async() => {
@@ -12,15 +13,19 @@ const run = async() => {
     const nftCacheFile:string = config.nft_cache;
     const baseMetadataFile = config.base_metadata;
     const baseMetadata = JSON.parse(fs.readFileSync(baseMetadataFile).toString());
+    const baseOffchainMetadataFile = config.base_offchain_metadata;
+    const baseOffchainMetadata = JSON.parse(fs.readFileSync(baseOffchainMetadataFile).toString());
     console.log(baseMetadata.name);
 
     const nftm = new nft_helper.NftManager(
+        config.pinataJwt,
         require('../key.json'),
         config.solana_cluster,
         config.holdem_payer_address,
         nftCacheFile,
         nftMapFile,
-        baseMetadata);
+        baseMetadata,
+        baseOffchainMetadata);
     console.log(nftm);
 
     await nftm.setup();

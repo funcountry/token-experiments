@@ -48,7 +48,7 @@ export async function uploadNfts(nftMapFile:string, nftCacheFile:string, jwt:str
 export async function getNftUri(filename:string) {
 }
 
-async function mintNft(mintAddress:any, kp: any, connection: any) {
+async function mintNft(mintAddress:any, kp: any, connection: any, onchainMetadata:object) {
     console.log("Performing mint");
     console.log(mintAddress);
     console.log(kp);
@@ -69,24 +69,8 @@ async function mintNft(mintAddress:any, kp: any, connection: any) {
     console.log("Metadata");
     console.log(metadata);
 
-    // TODO: FIgure out how to make the on chain metadata vs off chain metadata gel with the template system
-    const metadataData = new mplTokenMetadata.DataV2({
-        uri: nft_json,
-        name: "Fun Country Poker Citizen's NFT",
-        symbol: "",
-        sellerFeeBasisPoints: 0,
-        creators: [
-            {
-                "address": "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE",
-                "share": 100
-            }
-        ],
-        collection: {
-            name: "Fun Country Poker Citizen's NFT",
-            family: "Fun Country"
-        },
-        uses: null
-    });
+    const metadataData = new mplTokenMetadata.DataV2(onchainMetadata);
+    console.log(metadataData);
 
     // const toWallet = new solana.PublicKey(toAddress);
 
@@ -111,6 +95,7 @@ async function mintNft(mintAddress:any, kp: any, connection: any) {
 
 
 export class NftManager {
+    jwt: any;
     kp: any;
     connection: any;
     mintAddress: any;
@@ -119,14 +104,19 @@ export class NftManager {
     nftMap: any;
     nftCache: any;
     baseMetadata: any;
+    baseOffchainMetadata: any;
 
 
-    constructor(key:Object,
+    constructor(
+        jwt: Object,
+        key:Object,
         network:string,
         payer_address:string,
         nftCacheFile:string,
         nftMapFile:string,
-        _baseMetadata:object) {
+        _baseMetadata:object,
+        _baseOffchainMetadata:object) {
+        this.jwt = jwt;
         this.kp = load_key(key);
         this.connection = new solana.Connection(
             solana.clusterApiUrl(network),
@@ -139,6 +129,7 @@ export class NftManager {
         this.nftCache = JSON.parse(fs.readFileSync(nftCacheFile).toString());
 
         this.baseMetadata = _baseMetadata;
+        this.baseOffchainMetadata = _baseOffchainMetadata;
     }
 
     public async setup() {
@@ -158,33 +149,48 @@ export class NftManager {
     public async mintNft(nftIdentifier:string) {
         console.log("Minting", nftIdentifier);
 
-        const metadataFile:string = this.nftMap[nftIdentifier]['metadata'];
-        console.log(metadataFile);
-
         const imageUri = this.nftCache[this.nftMap[nftIdentifier]['image']];
 
-        const extMetadata  = JSON.parse(fs.readFileSync(metadataFile).toString());
-        console.log(this.baseMetadata);
-        console.log(extMetadata);
+        const offchainMetadataFile:string = this.nftMap[nftIdentifier]['metadata'];
+        const offChainMetadata  = JSON.parse(fs.readFileSync(offchainMetadataFile).toString());
 
-        const combinedMetadata = Object.assign(this.baseMetadata, extMetadata);
+        const combinedOffchainMetadata:object = JSON.parse(JSON.stringify(this.baseOffchainMetadata));
+        Object.assign(combinedOffchainMetadata, offChainMetadata);
+        console.log("Off chain metadata", combinedOffchainMetadata);
 
-        const _tempCombinedMetadata = JSON.stringify(combinedMetadata);
-        console.log(_tempCombinedMetadata);
-        
-        const _replacedTemplate:any = await Eta.render(_tempCombinedMetadata, {
-            uri: imageUri
+        const combinedMetadata:object = JSON.parse(JSON.stringify(this.baseMetadata));
+        Object.assign(combinedMetadata, offChainMetadata);
+        console.log("On Chain metadata", combinedMetadata);
+
+
+        // Render off chain metdata
+        const renderedOffchain:any = await Eta.render(JSON.stringify(combinedOffchainMetadata), {
+            image_uri: imageUri
         }, {
             'varName': 't'
         });
+        console.log(renderedOffchain);
 
-        console.log(_replacedTemplate);
+        // Upload off chain metadata
+        fs.writeFileSync('tempJson.json', renderedOffchain);
 
-        const finalMetadata = JSON.parse(_replacedTemplate);
-        console.log("Final Metdata");
-        console.log(JSON.stringify(finalMetadata, null, 2));
+        const offchainUrl = await pinata.pinataUpload(
+            'tempJson.json',
+            this.jwt,
+            ""
+        );
 
-        mintNft(this.mintAddress, this.kp, this.connection);
+        console.log("Uploaded offchain metadata to", offchainUrl);
+
+        // Render onchain metdata
+        const renderedMetadata:any = await Eta.render(JSON.stringify(combinedMetadata), {
+            offchain_metadata_uri: offchainUrl
+        }, {
+            'varName': 't'
+        });
+        console.log(renderedMetadata);
+
+        mintNft(this.mintAddress, this.kp, this.connection, JSON.parse(renderedMetadata));
     }
 
 

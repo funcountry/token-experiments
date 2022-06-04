@@ -15,10 +15,8 @@ import fs from 'fs';
 // }
 
 async function uploadMedia(media:string, jwt:string) {
-    console.log(media);
     const data = new FormData();
     data.append('file', fs.createReadStream(media));
-    console.log(data);
 
     const res = await fetch(`https://api.pinata.cloud/pinning/pinFileToIPFS`, {
         headers: {
@@ -29,7 +27,6 @@ async function uploadMedia(media:string, jwt:string) {
     });
 
     const json:any = await res.json();
-    console.log(jwt);
     console.log(json);
     return json.IpfsHash;
 }
@@ -39,7 +36,7 @@ export async function pinataUpload(
     jwt: string,
     gateway: string | null,
 ) {
-    const gatewayUrl = gateway ? gateway : `https://ipfs.io`;
+    const gatewayUrl = gateway ? gateway : `https://cf-ipfs.com`;
 
     const imageCid = await uploadMedia(image, jwt);
     console.log('uploaded image: ', `${gatewayUrl}/ipfs/${imageCid}`);

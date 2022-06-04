@@ -9,3 +9,4 @@ config.json
 *.prod
 *.bak
 .DS_Store
+tempJson.json

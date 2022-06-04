@@ -1,27 +1,16 @@
 {
   "name": "<%= t.name %>",
-  "symbol": "FCP",
-  "description": "<%= t.description %>",
+  "symbol": "FCPNFT",
   "seller_fee_basis_points": 0,
-  "image": "<%= t.uri %>",
-  "external_url": "https://fun.country",
+  "uri": "<%= t.offchain_metadata_uri %>",
   "attributes": [
   ],
-  "properties": {
-    "files": [
+  "creators": [
       {
-        "uri": "<%= t.uri %>",
-        "type": "image/png"
+          "address": "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE",
+          "share": 100
       }
-    ],
-    "category": "image",
-    "creators": [
-      {
-        "address": "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE",
-        "share": 100
-      }
-    ]
-  },
+  ],
   "collection": {
     "name": "Fun Country Poker NFT",
     "family": "Fun Country"
