@@ -69,6 +69,25 @@ async function mintNft(mintAddress:any, kp: any, connection: any) {
     console.log("Metadata");
     console.log(metadata);
 
+    // TODO: FIgure out how to make the on chain metadata vs off chain metadata gel with the template system
+    const metadataData = new mplTokenMetadata.DataV2({
+        uri: nft_json,
+        name: "Fun Country Poker Citizen's NFT",
+        symbol: "",
+        sellerFeeBasisPoints: 0,
+        creators: [
+            {
+                "address": "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE",
+                "share": 100
+            }
+        ],
+        collection: {
+            name: "Fun Country Poker Citizen's NFT",
+            family: "Fun Country"
+        },
+        uses: null
+    });
+
     // const toWallet = new solana.PublicKey(toAddress);
 
     // const toTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
