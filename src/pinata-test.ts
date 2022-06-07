@@ -15,7 +15,7 @@ const run = async() => {
     const baseMetadata = JSON.parse(fs.readFileSync(baseMetadataFile).toString());
     const baseOffchainMetadataFile = config.base_offchain_metadata;
     const baseOffchainMetadata = JSON.parse(fs.readFileSync(baseOffchainMetadataFile).toString());
-    console.log(baseMetadata.name);
+    // console.log(baseMetadata.name);
 
     const nftm = new nft_helper.NftManager(
         config.pinataJwt,
@@ -26,7 +26,7 @@ const run = async() => {
         nftMapFile,
         baseMetadata,
         baseOffchainMetadata);
-    console.log(nftm);
+    // console.log(nftm);
 
     await nftm.setup();
 
