@@ -8,10 +8,15 @@ import * as Eta from 'eta';
 // }  from  '/Users/aelaguiz/workspace/metaplex-program-library/token-metadata/js/src/mpl-token-metadata';
 
 const solana = require('@solana/web3.js');
-const splToken = require('@solana/spl-token');
+// const splToken = require('@solana/spl-token');
 // const mplTokenMetadata = require("@metaplex-foundation/mpl-token-metadata");
-const metaplex = require('@metaplex/js');
-const anchor = require("@project-serum/anchor");
+// const metaplex = require('@metaplex/js');
+// const anchor = require("@project-serum/anchor");
+import { 
+    Metaplex,
+    keypairIdentity
+} from "@metaplex-foundation/js-next";
+
 
 function load_key(key:any) {
     return solana.Keypair.fromSecretKey(Buffer.from(key));
@@ -53,8 +58,8 @@ export async function uploadNfts(nftMapFile:string, nftCacheFile:string, jwt:str
 export async function getNftUri(filename:string) {
 }
 
-async function mintNft(kp: any, connection: any, onchainMetadata:object) {
-    console.log(splToken.Token);
+async function mintNft(kp: any, connection: any, metaplex:any, onchainMetadata:object) {
+    // console.log(splToken.Token);
     // const mintAddress= await splToken.createMint(connection, kp, kp.publicKey, null, 0)
     // // console.log("Performing mint");
     // // console.log(mintAddress);
@@ -151,6 +156,7 @@ export class NftManager {
     nftCache: any;
     baseMetadata: any;
     baseOffchainMetadata: any;
+    metaplex: any;
 
 
     constructor(
@@ -168,8 +174,9 @@ export class NftManager {
             solana.clusterApiUrl(network),
             'confirmed'
         );
+        this.metaplex = new Metaplex(this.connection);
 
-        this.wallet = new anchor.Wallet(this.kp);
+        // this.wallet = new anchor.Wallet(this.kp);
 
         this.nftMap = JSON.parse(fs.readFileSync(nftMapFile).toString());
         this.nftCache = JSON.parse(fs.readFileSync(nftCacheFile).toString());
@@ -180,6 +187,7 @@ export class NftManager {
 
     public async setup() {
         console.log("Initializing NFT manager");
+        this.metaplex.use(keypairIdentity(this.kp));
     }
 
     /*
@@ -213,6 +221,7 @@ export class NftManager {
         }, {
             'varName': 't'
         });
+        console.log("Offchain data");
         console.log(renderedOffchain);
 
         // Upload off chain metadata
@@ -226,7 +235,7 @@ export class NftManager {
 
         console.log("Uploaded offchain metadata to", offchainUrl);
 
-        // Render onchain metdata
+        //// Render onchain metdata
         const renderedMetadata:any = await Eta.render(JSON.stringify(combinedMetadata), {
             offchain_metadata_uri: offchainUrl
         }, {
@@ -234,7 +243,11 @@ export class NftManager {
         });
         console.log(renderedMetadata);
 
-        mintNft(this.kp, this.connection, JSON.parse(renderedMetadata));
+        mintNft(this.kp, this.connection, this.metaplex, JSON.parse(renderedMetadata));
+        const res = await this.metaplex.nfts().create({
+            uri: offchainUrl
+        });
+        console.log(res);
     }
 
 
