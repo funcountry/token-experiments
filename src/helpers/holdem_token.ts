@@ -1,8 +1,5 @@
 const solana = require('@solana/web3.js');
 const splToken = require('@solana/spl-token');
-const mplTokenMetadata = require("@metaplex-foundation/mpl-token-metadata");
-const metaplex = require('@metaplex/js');
-const anchor = require("@project-serum/anchor");
 
 function load_key(key:any) {
     return solana.Keypair.fromSecretKey(Buffer.from(key));
@@ -45,7 +42,6 @@ export class HoldemTokenManager {
     token: any;
     mint: any;
     payer_address: any;
-    wallet: any;
 
 
     constructor(key:Object, network:string, token_address:string, payer_address:string) {
@@ -56,7 +52,6 @@ export class HoldemTokenManager {
         );
 
         this.token = new solana.PublicKey(token_address);
-        this.wallet = new anchor.Wallet(this.kp);
     }
 
     public async setup() {

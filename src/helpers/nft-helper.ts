@@ -1,6 +1,10 @@
 import * as pinata from './pinata';
 import fs from 'fs';
 import * as Eta from 'eta';
+
+import {
+  DataV2,
+} from '@metaplex-foundation/mpl-token-metadata';
 // import * as mplTokenMetadata from  '/Users/aelaguiz/workspace/metaplex-program-library/token-metadata/js/src/mpl-token-metadata';
 // import { 
 //     DataV2,
@@ -243,11 +247,20 @@ export class NftManager {
         });
         console.log(renderedMetadata);
 
-        mintNft(this.kp, this.connection, this.metaplex, JSON.parse(renderedMetadata));
-        const res = await this.metaplex.nfts().create({
-            uri: offchainUrl
+        const md:DataV2 = JSON.parse(renderedMetadata);
+        console.log(md);
+
+        const mintedNft = await this.metaplex.nfts().create({
+            uri: offchainUrl,
+            'name': md.name,
+            'symbol': md.symbol
         });
-        console.log(res);
+        console.log(mintedNft);
+
+        const tokenAddress = mintedNft.mint.publicKey.toString();
+        console.log(tokenAddress);
+        
+        // Now to transfer it to recipient
     }
 
 

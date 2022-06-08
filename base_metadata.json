@@ -3,12 +3,6 @@
   "symbol": "FCPNFT",
   "seller_fee_basis_points": 0,
   "uri": "<%= t.offchain_metadata_uri %>",
-  "creators": [
-      {
-          "address": "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE",
-          "share": 100
-      }
-  ],
   "collection": {
     "name": "Fun Country Poker NFT",
     "family": "Fun Country"
