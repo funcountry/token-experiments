@@ -30,7 +30,7 @@ const run = async() => {
 
     await nftm.setup();
 
-    nftm.mintNft("host_nft");
+    const mintedNft = nftm.mintNft("host_nft");
     // nft_helper.uploadNfts(nftMapFile, nftCacheFile, config.pinataJwt);
 
     // await pinata.pinataUpload(
