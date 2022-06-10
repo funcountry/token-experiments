@@ -21,7 +21,7 @@ const run = async() => {
     for(const grant of grants) {
         // console.log(grant);
         if(grant.solana_wallet) {
-            console.log("Has wallet");
+            console.log("FOUND WALLET", grant.player_id);
             
             console.log("Transfering", grant.amount, "to", grant.solana_wallet);
 
@@ -31,7 +31,7 @@ const run = async() => {
             console.log("Updated");
         }
         else {
-            console.log("NO WALLET");
+            console.log("NO WALLET", grant.player_id);
         }
     }
 };
