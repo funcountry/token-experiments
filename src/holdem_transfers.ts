@@ -26,7 +26,7 @@ const run = async() => {
             console.log("Transfering", grant.amount, "to", grant.solana_wallet);
 
             await tm.grant(grant.solana_wallet, grant.amount);
-            // await event_data.complete_grant(db, grant.grant_id, grant.solana_wallet);
+            await event_data.complete_grant(db, grant.grant_id, grant.solana_wallet);
 
             console.log("Updated");
         }

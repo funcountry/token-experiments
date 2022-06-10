@@ -6,6 +6,11 @@ function load_key(key:any) {
 }
 
 async function transfer(mint:any, kp: any, toAddress: string, connection: any, amount: number) {
+    if(amount > 1000000000000) {
+        console.log("TOO MANY TOKENS TRYING TO BE SENT NOT DOING IT");
+        return process.exit(1);
+    }
+
     const fromTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
         connection,
         kp,
@@ -50,16 +55,17 @@ async function transfer(mint:any, kp: any, toAddress: string, connection: any, a
     }
 
 
+    console.log("TRANSFERING",amount,"TOKENS (", amount/1000000000, ")");
 
-    // const res = await splToken.transfer(
-    //     connection,
-    //     kp,
-    //     fromTokenAccount.address,
-    //     toTokenAccount.address,
-    //     kp,
-    //     1000
-    // );
-    // console.log(res);
+    const res = await splToken.transfer(
+        connection,
+        kp,
+        fromTokenAccount.address,
+        toTokenAccount.address,
+        kp,
+        amount
+    );
+    console.log(res);
     //
     console.log("FREEZING ACCOUNT");
 
