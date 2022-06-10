@@ -20,6 +20,7 @@ import {
     Metaplex,
     keypairIdentity
 } from "@metaplex-foundation/js-next";
+const splToken = require('@solana/spl-token');
 
 
 function load_key(key:any) {
@@ -177,5 +178,32 @@ export class NftManager {
     }
 
     public async transferNft(nft:any, toAddress:string) {
+        const fromTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
+            this.connection,
+            this.kp,
+            nft.mint.publicKey,
+            this.kp.publicKey);
+        console.log("From Token Account");
+        console.log(fromTokenAccount.address.toString());
+
+        const toWallet = new solana.PublicKey(toAddress);
+
+        const toTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
+            this.connection,
+            this.kp,
+            nft.mint.publicKey,
+            toWallet);
+        console.log("To Token Account");
+        console.log(toTokenAccount.address.toString());
+        const res = await splToken.transfer(
+            this.connection,
+            this.kp,
+            fromTokenAccount.address,
+            toTokenAccount.address,
+            this.kp,
+            1
+        );
+        console.log("Transfer completed");
+        console.log(res);
     }
 }

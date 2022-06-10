@@ -14,13 +14,7 @@
         "type": "image/png"
       }
     ],
-    "category": "image",
-    "creators": [
-      {
-        "address": "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE",
-        "share": 100
-      }
-    ]
+    "category": "image"
   },
   "collection": {
     "name": "Fun Country Poker NFT",
