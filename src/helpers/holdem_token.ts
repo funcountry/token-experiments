@@ -102,10 +102,10 @@ export class HoldemTokenManager {
     payer_address: any;
 
 
-    constructor(key:Object, network:string, token_address:string, payer_address:string) {
+    constructor(key:Object, endpoint:string, token_address:string, payer_address:string) {
         this.kp = load_key(key);
         this.connection = new solana.Connection(
-            solana.clusterApiUrl(network),
+            endpoint,
             'confirmed'
         );
 
