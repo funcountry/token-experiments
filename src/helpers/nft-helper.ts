@@ -167,13 +167,15 @@ export class NftManager {
             'symbol': md.symbol
         });
 
-        console.log(mintedNft);
+        // console.log(mintedNft);
 
-        const tokenAddress = mintedNft.mint.publicKey.toString();
-        console.log(tokenAddress);
+        // const tokenAddress = mintedNft.mint.publicKey.toString();
+        // console.log(tokenAddress);
         return mintedNft;
         
         // Now to transfer it to recipient
     }
 
+    public async transferNft(nft:any, toAddress:string) {
+    }
 }
