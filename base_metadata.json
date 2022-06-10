@@ -1,0 +1,10 @@
+{
+  "name": "<%= t.name %>",
+  "symbol": "FCPNFT",
+  "seller_fee_basis_points": 0,
+  "uri": "<%= t.offchain_metadata_uri %>",
+  "collection": {
+    "name": "Fun Country Poker NFT",
+    "family": "Fun Country"
+  }
+}

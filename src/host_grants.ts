@@ -13,6 +13,8 @@ const config = require('../config.json');
 const run = async() => {
     const db = await event_data.connect(config.schema);
 
+    await event_data.pull_wallets(db);
+
     const games:Array<event_data.Game> = await event_data.get_games(db);
 
     for(const game of games) {

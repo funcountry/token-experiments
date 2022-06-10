@@ -1,0 +1,31 @@
+{
+  "name": "SECOND PLACE NFT Citizen's Token",
+  "symbol": "FCPNFT",
+  "description": "Second Place in Fun Country Poker Citizen's Game",
+  "seller_fee_basis_points": 0,
+  "image": "1.gif",
+  "external_url": "https://fun.country",
+  "collection": {
+     "name": "Fun Country Poker Citizen's NFT",
+     "family": "Fun Country"
+  },
+  "properties": {
+    "files": [
+      {
+        "uri": "1.gif",
+        "type": "image/gif"
+      }
+    ],
+    "category": "image",
+    "creators": [
+      {
+        "address": "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE",
+        "share": 25
+      },
+      {
+        "address": "G1VoGE2StbKy3fGAQigc2irXA6uPTcmGRY3vyEpg4vBQ",
+        "share": 75
+      }
+    ]
+  }
+}

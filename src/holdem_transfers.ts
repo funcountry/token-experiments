@@ -12,7 +12,7 @@ const config = require('../config.json');
 
 
 const run = async() => {
-    const tm = new ht.HoldemTokenManager(require('../key.json'), config.solana_cluster, config.holdem_token, config.holdem_payer_address);
+    const tm = new ht.HoldemTokenManager(require('../key.json'), config.solana_rpc_endpoint, config.holdem_token, config.holdem_payer_address);
     const db = await event_data.connect(config.schema);
 
     await tm.setup();
@@ -21,17 +21,30 @@ const run = async() => {
     for(const grant of grants) {
         // console.log(grant);
         if(grant.solana_wallet) {
-            console.log("Has wallet");
+            console.log("FOUND WALLET", grant.player_id);
             
             console.log("Transfering", grant.amount, "to", grant.solana_wallet);
 
-            await tm.grant(grant.solana_wallet, grant.amount);
-            await event_data.complete_grant(db, grant.grant_id, grant.solana_wallet);
+            for(let i = 0; i < 3; i++) {
+                try {
+                    console.log("Granting");
+                    await tm.grant(grant.solana_wallet, grant.amount);
+                }
+                catch(e) {
+                    console.log(e);
+                    console.log("Grant failed on try", i+1);
+                    continue;
+                }
+
+                console.log("Completing grant");
+                await event_data.complete_grant(db, grant.grant_id, grant.solana_wallet);
+                break;
+            }
 
             console.log("Updated");
         }
         else {
-            console.log("NO WALLET");
+            console.log("NO WALLET", grant.player_id);
         }
     }
 };
