@@ -24,15 +24,67 @@ async function transfer(mint:any, kp: any, toAddress: string, connection: any, a
     console.log("To Token Account");
     console.log(toTokenAccount.address.toString());
 
-    const res = await splToken.transfer(
-        connection,
-        kp,
-        fromTokenAccount.address,
-        toTokenAccount.address,
-        kp,
-        amount
-    );
-    console.log(res);
+    const freeze = mint.freezeAuthority;
+
+    console.log("THAWING ACCOUNT");
+
+    try {
+        let tx = new solana.Transaction().add(
+            splToken.createThawAccountInstruction(
+                toTokenAccount.address,
+                mint.address,
+                freeze,
+                [],
+                splToken.TOKEN_PROGRAM_ID
+            )
+        );
+
+        const res = await solana.sendAndConfirmTransaction(
+            connection,
+            tx, [kp], solana.ConfirmOptions);
+        console.log(res);
+    }
+    catch(e) {
+        console.log("Failed to thaw account");
+        // console.log(e);
+    }
+
+
+
+    // const res = await splToken.transfer(
+    //     connection,
+    //     kp,
+    //     fromTokenAccount.address,
+    //     toTokenAccount.address,
+    //     kp,
+    //     1000
+    // );
+    // console.log(res);
+    //
+    console.log("FREEZING ACCOUNT");
+
+    try {
+        let txFreeze = new solana.Transaction().add(
+            splToken.createFreezeAccountInstruction(
+                toTokenAccount.address,
+                mint.address,
+                freeze,
+                [],
+                splToken.TOKEN_PROGRAM_ID
+            )
+        );
+
+        const resFreeze = await solana.sendAndConfirmTransaction(
+            connection,
+            txFreeze, [kp], solana.ConfirmOptions);
+        console.log(resFreeze);
+    }
+    catch(e) {
+        console.log("Failed to freeze account");
+        console.log(e);
+    }
+   
+
 }
 
 

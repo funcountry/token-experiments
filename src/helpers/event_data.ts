@@ -243,10 +243,9 @@ export async function complete_grant(db:any, grant_id:string, solana_wallet:stri
 export async function pull_wallets(db:any) {
     console.log("Pulling wallets");
     const prodWallets:Array<PlayerWallet> = await db.any(`SELECT
-        id as player_id,
-        account_solana as solana_wallet
-    FROM server_production.users
-    WHERE account_solana IS NOT NULL`);
+        user_id as player_id,
+        address as solana_wallet
+    FROM segment_functions.wallets`);
 
     for(const prodWallet of prodWallets) {
         const scratchWallets:Array<PlayerWallet> = await db.any(`SELECT 
