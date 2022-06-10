@@ -2,5 +2,9 @@
     "host_nft": {
         "image": "./nfts/assets/host_chip.gif",
         "metadata": "./nfts/assets/host_chip.json"
+    },
+    "player_nft": {
+        "image": "./nfts/assets/player_chip.gif",
+        "metadata": "./nfts/assets/player_chip.json"
     }
 }
