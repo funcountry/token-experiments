@@ -44,12 +44,14 @@ export async function pinataUpload(
 ) {
     const gatewayUrl = gateway ? gateway : `https://cf-ipfs.com`;
 
+    const extension = image.split('.').pop();
+
     const imageCid = await uploadMedia(image, jwt);
-    console.log('uploaded image: ', `${gatewayUrl}/ipfs/${imageCid}`);
+    const mediaUrl = `${gatewayUrl}/ipfs/${imageCid}?ext=${extension}`;
+    console.log('uploaded image: ', mediaUrl);
     // await sleep(500);
     //
 
-    const mediaUrl = `${gatewayUrl}/ipfs/${imageCid}`;
     return mediaUrl;
 
 

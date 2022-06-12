@@ -1,10 +1,12 @@
 {
     "host_nft": {
         "image": "./nfts/assets/host_chip.gif",
+        "animation": "./nfts/assets/host_chip.mp4",
         "metadata": "./nfts/assets/host_chip.json"
     },
     "player_nft": {
         "image": "./nfts/assets/player_chip.gif",
+        "animation": "./nfts/assets/player_chip.mp4",
         "metadata": "./nfts/assets/player_chip.json"
     }
 }

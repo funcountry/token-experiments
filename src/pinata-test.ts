@@ -16,22 +16,23 @@ const run = async() => {
     const baseOffchainMetadataFile = config.base_offchain_metadata;
     const baseOffchainMetadata = JSON.parse(fs.readFileSync(baseOffchainMetadataFile).toString());
     // console.log(baseMetadata.name);
+    await nft_helper.uploadNfts(nftMapFile, nftCacheFile, config.pinataJwt);
 
-    // const nftm = new nft_helper.NftManager(
-    //     config.pinataJwt,
-    //     require('../key.json'),
-    //     config.solana_cluster,
-    //     config.holdem_payer_address,
-    //     nftCacheFile,
-    //     nftMapFile,
-    //     baseMetadata,
-    //     baseOffchainMetadata);
-    // // console.log(nftm);
+    const nftm = new nft_helper.NftManager(
+        config.pinataJwt,
+        require('../key.json'),
+        config.solana_cluster,
+        config.holdem_payer_address,
+        nftCacheFile,
+        nftMapFile,
+        baseMetadata,
+        baseOffchainMetadata);
+    // console.log(nftm);
 
-    // await nftm.setup();
+    await nftm.setup();
 
-    // const mintedNft = nftm.mintNft("host_nft");
-    nft_helper.uploadNfts(nftMapFile, nftCacheFile, config.pinataJwt);
+    const mintedNft = await nftm.mintNft("host_nft");
+    const mintedNft2 = await nftm.mintNft("player_nft");
 
     // await pinata.pinataUpload(
     //     "./nfts/citizen_placements_v1/assets/0.gif",

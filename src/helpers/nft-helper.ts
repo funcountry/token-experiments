@@ -38,21 +38,28 @@ export async function uploadNfts(nftMapFile:string, nftCacheFile:string, jwt:str
     // console.log(nftMap);
     for(const key in nftMap) {
         const nftData = nftMap[key];
-        const imagePath = nftData['image'];
-        console.log(key);
-        console.log(nftData);
 
-        if(!(imagePath in nftCache)) {
-            console.log("Needs upload", imagePath);
+        for(const uploadKey of ['image', 'animation']) {
+            const imagePath = nftData[uploadKey];
+            if(!imagePath) {
+                console.log("No image of type", uploadKey);
+                continue;
+            }
+            console.log(key);
+            console.log(nftData);
 
-            const url = await pinata.pinataUpload(
-                imagePath,
-                jwt,
-                ""
-            );
+            if(!(imagePath in nftCache)) {
+                console.log("Needs upload", imagePath);
 
-            console.log("Uploaded to", url);
-            nftCache[imagePath] = url;
+                const url = await pinata.pinataUpload(
+                    imagePath,
+                    jwt,
+                    ""
+                );
+
+                console.log("Uploaded to", url);
+                nftCache[imagePath] = url;
+            }
         }
     }
 
@@ -118,6 +125,9 @@ export class NftManager {
         console.log("Minting", nftIdentifier);
 
         const imageUri = this.nftCache[this.nftMap[nftIdentifier]['image']];
+        const animationUri = this.nftCache[this.nftMap[nftIdentifier]['animation']];
+        console.log(this.nftCache);
+        console.log(animationUri);
 
         const offchainMetadataFile:string = this.nftMap[nftIdentifier]['metadata'];
         const offChainMetadata  = JSON.parse(fs.readFileSync(offchainMetadataFile).toString());
@@ -133,7 +143,8 @@ export class NftManager {
 
         // Render off chain metdata
         const renderedOffchain:any = await Eta.render(JSON.stringify(combinedOffchainMetadata), {
-            image_uri: imageUri
+            image_uri: imageUri,
+            animation_uri: animationUri
         }, {
             'varName': 't'
         });
@@ -153,7 +164,9 @@ export class NftManager {
 
         //// Render onchain metdata
         const renderedMetadata:any = await Eta.render(JSON.stringify(combinedMetadata), {
-            offchain_metadata_uri: offchainUrl
+            offchain_metadata_uri: offchainUrl,
+            image_uri: imageUri,
+            animation_uri: animationUri
         }, {
             'varName': 't'
         });
