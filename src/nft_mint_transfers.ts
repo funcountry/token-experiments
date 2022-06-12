@@ -40,13 +40,16 @@ const run = async() => {
         // console.log(grant);
         if(grant.solana_wallet) {
             console.log("FOUND WALLET", grant.player_id);
+            let nft_name = "";
 
             if(grant.grant_type == "host_nft_grant") {
                 console.log("HOST NFT GRANT");
-                const nft_name = "host_nft";
+                nft_name = "host_nft";
+            }
 
-                console.log("MINTING NFT");
-                const mintedNft = await nftm.mintNft("host_nft");
+            if(nft_name) {
+                console.log("MINTING NFT", nft_name);
+                const mintedNft = await nftm.mintNft(nft_name);
                 console.log("MINTED NFT", mintedNft.mint.publicKey.toString());
 
                 await nftm.transferNft(mintedNft, grant.solana_wallet);

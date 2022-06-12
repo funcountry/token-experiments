@@ -37,7 +37,6 @@ export class HoldemTokenManager {
         grant_id:string,
         toAddress:string,
         amount:number) {
-        console.log(this.mint);
         console.log("Granting", amount, "tokens to", toAddress);
 
         if(amount > 1000000000000) {
@@ -50,8 +49,7 @@ export class HoldemTokenManager {
             this.kp,
             this.mint.address,
             this.kp.publicKey);
-        console.log("From Token Account");
-        console.log(fromTokenAccount.address.toString());
+        console.log("From Token Account", fromTokenAccount.address.toString());
 
         const toWallet = new solana.PublicKey(toAddress);
 
@@ -60,8 +58,7 @@ export class HoldemTokenManager {
             this.kp,
             this.mint.address,
             toWallet);
-        console.log("To Token Account");
-        console.log(toTokenAccount.address.toString());
+        console.log("To Token Account", toTokenAccount.address.toString());
 
         const freeze = this.mint.freezeAuthority;
 
@@ -78,7 +75,6 @@ export class HoldemTokenManager {
                 )
             );
 
-            console.log("Thaw");
             const res = await solana.sendAndConfirmTransaction(
                 this.connection,
                 tx, [this.kp], solana.ConfirmOptions);
@@ -132,8 +128,6 @@ export class HoldemTokenManager {
         console.log("FREEZING ACCOUNT");
 
         try {
-            console.log(toTokenAccount);
-            console.log(this.mint);
             let txFreeze = new solana.Transaction().add(
                 splToken.createFreezeAccountInstruction(
                     toTokenAccount.address,
@@ -143,12 +137,6 @@ export class HoldemTokenManager {
                     splToken.TOKEN_PROGRAM_ID
                 )
             );
-
-            console.log("Sending freeze");
-            console.log(this.connection);
-            console.log(this.kp);
-            console.log(txFreeze);
-            console.log(solana.ConfirmOptions);
 
             const resFreeze = await solana.sendAndConfirmTransaction(
                 this.connection,
