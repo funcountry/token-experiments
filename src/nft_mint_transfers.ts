@@ -12,32 +12,10 @@ import fs from 'fs';
  * 3. If not, create a player holdem token grant
  */
 
-
-const run = async() => {
-    const nftMapFile:string = config.nft_map;
-    const nftCacheFile:string = config.nft_cache;
-    const baseMetadataFile = config.base_metadata;
-    const baseMetadata = JSON.parse(fs.readFileSync(baseMetadataFile).toString());
-    const baseOffchainMetadataFile = config.base_offchain_metadata;
-    const baseOffchainMetadata = JSON.parse(fs.readFileSync(baseOffchainMetadataFile).toString());
-    const tm = new ht.HoldemTokenManager(require('../key.json'), config.solana_rpc_endpoint, config.holdem_token, config.holdem_payer_address);
-    const db = await event_data.connect(config.schema);
-
-    const nftm = new nft_helper.NftManager(
-        config.pinataJwt,
-        require('../key.json'),
-        config.solana_cluster,
-        config.holdem_payer_address,
-        nftCacheFile,
-        nftMapFile,
-        baseMetadata,
-        baseOffchainMetadata);
-    await nftm.setup();
-    await tm.setup();
-    const grants:Array<event_data.PlayerGrant>
-        = await event_data.get_grants(db, "new", "host_nft_grant");
+async function doGrants(grants:any, nftm:any, db:any) {
+    console.log("Do grants");
     for(const grant of grants) {
-        // console.log(grant);
+        console.log(grant);
         if(grant.solana_wallet) {
             console.log("FOUND WALLET", grant.player_id);
             let nft_name = "";
@@ -45,6 +23,10 @@ const run = async() => {
             if(grant.grant_type == "host_nft_grant") {
                 console.log("HOST NFT GRANT");
                 nft_name = "host_nft";
+            }
+            else if(grant.grant_type == "player_nft_grant") {
+                console.log("PLAYER NFT GRANT");
+                nft_name = "player_nft";
             }
 
             if(nft_name) {
@@ -100,6 +82,32 @@ const run = async() => {
             console.log("NO WALLET", grant.player_id);
         }
     }
+}
+
+const run = async() => {
+    const nftMapFile:string = config.nft_map;
+    const nftCacheFile:string = config.nft_cache;
+    const baseMetadataFile = config.base_metadata;
+    const baseMetadata = JSON.parse(fs.readFileSync(baseMetadataFile).toString());
+    const baseOffchainMetadataFile = config.base_offchain_metadata;
+    const baseOffchainMetadata = JSON.parse(fs.readFileSync(baseOffchainMetadataFile).toString());
+    const tm = new ht.HoldemTokenManager(require('../key.json'), config.solana_rpc_endpoint, config.holdem_token, config.holdem_payer_address);
+    const db = await event_data.connect(config.schema);
+
+    const nftm = new nft_helper.NftManager(
+        config.pinataJwt,
+        require('../key.json'),
+        config.solana_cluster,
+        config.holdem_payer_address,
+        nftCacheFile,
+        nftMapFile,
+        baseMetadata,
+        baseOffchainMetadata);
+    await nftm.setup();
+    await tm.setup();
+
+    await doGrants(await event_data.get_grants(db, "new", "host_nft_grant"), nftm, db);
+    await doGrants(await event_data.get_grants(db, "new", "player_nft_grant"), nftm, db);
 };
 
 run();
