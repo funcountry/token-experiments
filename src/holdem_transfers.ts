@@ -28,7 +28,11 @@ const run = async() => {
             for(let i = 0; i < 3; i++) {
                 try {
                     console.log("Granting");
-                    await tm.grant(grant.solana_wallet, grant.amount);
+                    let res = await tm.grant(db, grant.grant_id, grant.solana_wallet, grant.amount);
+                    console.log(res);
+                    // while(res) {
+                    //     console.log(res);
+                    // }
                 }
                 catch(e) {
                     console.log(e);
@@ -36,8 +40,8 @@ const run = async() => {
                     continue;
                 }
 
-                console.log("Completing grant");
-                await event_data.complete_grant(db, grant.grant_id, grant.solana_wallet);
+                // console.log("Completing grant");
+                // await event_data.complete_grant(db, grant.grant_id, grant.solana_wallet);
                 break;
             }
 

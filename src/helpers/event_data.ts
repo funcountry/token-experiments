@@ -31,6 +31,15 @@ export type PlayerWallet = {
     'solana_wallet': string
 };
 
+export type TxLog = {
+    'id': string | null,
+    'grant_id': string | null,
+    'blockchain_transaction': string | null,
+    'transaction_type': string,
+    'result': string,
+    'account_optional': string | null,
+}
+
 
 export async function connect(_schema:string) {
     schema = _schema;
@@ -240,6 +249,7 @@ export async function log_transaction(
     result:string,
     account_optional:string) {
     const id:string = uuid.v4();
+    console.log("Logging transaction", grant_id, transaction_type, blockchain_transaction, result, account_optional);
     await db.none(`
         INSERT INTO ` + schema + `.transaction_log(id, grant_id, transaction_type, blockchain_transaction, result, account_optional) VALUES (
             $1, $2, $3, $4, $5, $6);`, [id, grant_id, transaction_type, blockchain_transaction, result, account_optional]);

@@ -1,96 +1,10 @@
 const solana = require('@solana/web3.js');
 const splToken = require('@solana/spl-token');
 
+import * as event_data from './event_data';
+
 function load_key(key:any) {
     return solana.Keypair.fromSecretKey(Buffer.from(key));
-}
-
-async function transfer(mint:any, kp: any, toAddress: string, connection: any, amount: number) {
-    if(amount > 1000000000000) {
-        console.log("TOO MANY TOKENS TRYING TO BE SENT NOT DOING IT");
-        return process.exit(1);
-    }
-
-    const fromTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
-        connection,
-        kp,
-        mint.address,
-        kp.publicKey);
-    console.log("From Token Account");
-    console.log(fromTokenAccount.address.toString());
-
-    const toWallet = new solana.PublicKey(toAddress);
-
-    const toTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
-        connection,
-        kp,
-        mint.address,
-        toWallet);
-    console.log("To Token Account");
-    console.log(toTokenAccount.address.toString());
-
-    const freeze = mint.freezeAuthority;
-
-    console.log("THAWING ACCOUNT");
-
-    try {
-        let tx = new solana.Transaction().add(
-            splToken.createThawAccountInstruction(
-                toTokenAccount.address,
-                mint.address,
-                freeze,
-                [],
-                splToken.TOKEN_PROGRAM_ID
-            )
-        );
-
-        const res = await solana.sendAndConfirmTransaction(
-            connection,
-            tx, [kp], solana.ConfirmOptions);
-        console.log(res);
-    }
-    catch(e) {
-        console.log("Failed to thaw account");
-        // console.log(e);
-    }
-
-
-    console.log("TRANSFERING",amount,"TOKENS (", amount/1000000000, ")");
-
-    const res = await splToken.transfer(
-        connection,
-        kp,
-        fromTokenAccount.address,
-        toTokenAccount.address,
-        kp,
-        amount
-    );
-    console.log(res);
-    //
-    console.log("FREEZING ACCOUNT");
-
-    try {
-        let txFreeze = new solana.Transaction().add(
-            splToken.createFreezeAccountInstruction(
-                toTokenAccount.address,
-                mint.address,
-                freeze,
-                [],
-                splToken.TOKEN_PROGRAM_ID
-            )
-        );
-
-        const resFreeze = await solana.sendAndConfirmTransaction(
-            connection,
-            txFreeze, [kp], solana.ConfirmOptions);
-        console.log(resFreeze);
-    }
-    catch(e) {
-        console.log("Failed to freeze account");
-        console.log(e);
-    }
-   
-
 }
 
 
@@ -118,11 +32,153 @@ export class HoldemTokenManager {
         console.log("Got mint", this.mint);
     }
 
-    public async grant(toAddress:string, amount:number) {
+    public async grant(
+        db:any,
+        grant_id:string,
+        toAddress:string,
+        amount:number) {
         console.log(this.mint);
         console.log("Granting", amount, "tokens to", toAddress);
 
-        await transfer(this.mint, this.kp, toAddress,
-            this.connection, amount);
+        if(amount > 1000000000000) {
+            console.log("TOO MANY TOKENS TRYING TO BE SENT NOT DOING IT");
+            return process.exit(1);
+        }
+
+        const fromTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
+            this.connection,
+            this.kp,
+            this.mint.address,
+            this.kp.publicKey);
+        console.log("From Token Account");
+        console.log(fromTokenAccount.address.toString());
+
+        const toWallet = new solana.PublicKey(toAddress);
+
+        const toTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
+            this.connection,
+            this.kp,
+            this.mint.address,
+            toWallet);
+        console.log("To Token Account");
+        console.log(toTokenAccount.address.toString());
+
+        const freeze = this.mint.freezeAuthority;
+
+        console.log("THAWING ACCOUNT");
+
+        try {
+            let tx = new solana.Transaction().add(
+                splToken.createThawAccountInstruction(
+                    toTokenAccount.address,
+                    this.mint.address,
+                    freeze,
+                    [],
+                    splToken.TOKEN_PROGRAM_ID
+                )
+            );
+
+            console.log("Thaw");
+            const res = await solana.sendAndConfirmTransaction(
+                this.connection,
+                tx, [this.kp], solana.ConfirmOptions);
+            console.log(res);
+
+            await event_data.log_transaction(
+                db,
+                grant_id,
+                'thaw',
+                res,
+                'success',
+                toTokenAccount.address.toString()
+            );
+        }
+        catch(e) {
+            console.log("Failed to thaw account");
+            console.log(e);
+            await event_data.log_transaction(
+                db,
+                grant_id,
+                'thaw',
+                '',
+                'failed',
+                toTokenAccount.address.toString()
+            );
+        }
+
+
+        console.log("TRANSFERING",amount,"TOKENS (", amount/1000000000, ")");
+
+        const res = await splToken.transfer(
+            this.connection,
+            this.kp,
+            fromTokenAccount.address,
+            toTokenAccount.address,
+            this.kp,
+            amount
+        );
+        console.log(res);
+
+        await event_data.log_transaction(
+            db,
+            grant_id,
+            'transfer',
+            res,
+            'success',
+            toTokenAccount.address.toString()
+        );
+
+        //
+        console.log("FREEZING ACCOUNT");
+
+        try {
+            console.log(toTokenAccount);
+            console.log(this.mint);
+            let txFreeze = new solana.Transaction().add(
+                splToken.createFreezeAccountInstruction(
+                    toTokenAccount.address,
+                    this.mint.address,
+                    freeze,
+                    [],
+                    splToken.TOKEN_PROGRAM_ID
+                )
+            );
+
+            console.log("Sending freeze");
+            console.log(this.connection);
+            console.log(this.kp);
+            console.log(txFreeze);
+            console.log(solana.ConfirmOptions);
+
+            const resFreeze = await solana.sendAndConfirmTransaction(
+                this.connection,
+                txFreeze, 
+                [this.kp], 
+                solana.ConfirmOptions);
+            console.log("Back from sendandconfirm");
+            console.log(resFreeze);
+
+            await event_data.log_transaction(
+                db,
+                grant_id,
+                'freeze',
+                resFreeze,
+                'success',
+                toTokenAccount.address.toString()
+            );
+        }
+        catch(e) {
+            console.log("Failed to freeze account");
+            console.log(e);
+
+            await event_data.log_transaction(
+                db,
+                grant_id,
+                'freeze',
+                '',
+                'failed',
+                toTokenAccount.address.toString()
+            );
+        }
     }
 }
