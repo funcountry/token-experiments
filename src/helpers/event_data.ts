@@ -232,6 +232,19 @@ export async function create_player_holdem_grant(db:any, game:Game, player:Playe
             $1, $2, $3, \'player_holdem_grant\', \'new\', $4);`, [grant_id, game.game_id, player.player_id, amount]);
 }
 
+export async function log_transaction(
+    db:any,
+    grant_id:string,
+    transaction_type:string,
+    blockchain_transaction:string,
+    result:string,
+    account_optional:string) {
+    const id:string = uuid.v4();
+    await db.none(`
+        INSERT INTO ` + schema + `.transaction_log(id, grant_id, transaction_type, blockchain_transaction, result, account_optional) VALUES (
+            $1, $2, $3, $4, $5, $6);`, [id, grant_id, transaction_type, blockchain_transaction, result, account_optional]);
+}
+
 export async function complete_grant(db:any, grant_id:string, solana_wallet:string) {
     await db.none(`
         UPDATE ` + schema + `.player_grants as grants SET
