@@ -218,5 +218,6 @@ export class NftManager {
         );
         console.log("Transfer completed");
         console.log(res);
+        return res;
     }
 }

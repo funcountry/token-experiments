@@ -52,7 +52,26 @@ const run = async() => {
                 const mintedNft = await nftm.mintNft(nft_name);
                 console.log("MINTED NFT", mintedNft.mint.publicKey.toString());
 
-                await nftm.transferNft(mintedNft, grant.solana_wallet);
+                await event_data.log_transaction(
+                    db,
+                    grant.grant_id,
+                    'mint_nft',
+                    mintedNft.mint.publicKey.toString(),
+                    'success',
+                    nft_name
+                );
+
+                let res = await nftm.transferNft(mintedNft, grant.solana_wallet);
+
+                await event_data.log_transaction(
+                    db,
+                    grant.grant_id,
+                    'transfer_nft',
+                    res,
+                    'success',
+                    grant.solana_wallet
+                );
+
                 await event_data.complete_grant(db, grant.grant_id, grant.solana_wallet);
             }
 
