@@ -11,7 +11,7 @@
     "files": [
       {
         "uri": "<%= t.image_uri %>",
-        "type": "image/png"
+        "type": "image/gif"
       }
     ],
     "category": "image"

@@ -7,7 +7,7 @@
     "files": [
       {
         "uri": "<%= t.image_uri %>",
-        "type": "image/png"
+        "type": "image/gif"
       },
       {
         "uri": "<%= t.animation_uri %>",
