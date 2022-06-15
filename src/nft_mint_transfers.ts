@@ -28,6 +28,20 @@ async function doGrants(grants:any, nftm:any, db:any) {
                 console.log("PLAYER NFT GRANT");
                 nft_name = "player_nft";
             }
+            else if(grant.grant_type == "player_placement_grant") {
+                console.log(grant.data);
+                const data:{'rank':number} = JSON.parse(grant.data);
+                console.log("PLAYER PLACEMENT GRANT", data);
+                if(data.rank == 1)  {
+                    nft_name = "player_placement_1";
+                }
+                else if(data.rank == 2)  {
+                    nft_name = "player_placement_2";
+                }
+                else if(data.rank == 3)  {
+                    nft_name = "player_placement_3";
+                }
+            }
 
             if(nft_name) {
                 console.log("MINTING NFT", nft_name);
@@ -106,8 +120,11 @@ const run = async() => {
     await nftm.setup();
     await tm.setup();
 
-    await doGrants(await event_data.get_grants(db, "new", "host_nft_grant"), nftm, db);
-    await doGrants(await event_data.get_grants(db, "new", "player_nft_grant"), nftm, db);
+    await nft_helper.uploadNfts(nftMapFile, nftCacheFile, config.pinataJwt);
+
+    // await doGrants(await event_data.get_grants(db, "new", "player_nft_grant"), nftm, db);
+    // await doGrants(await event_data.get_grants(db, "new", "host_nft_grant"), nftm, db);
+    await doGrants(await event_data.get_grants(db, "new", "player_placement_grant"), nftm, db);
 };
 
 run();

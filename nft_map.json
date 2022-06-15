@@ -8,5 +8,20 @@
         "image": "./nfts/assets/player_chip.gif",
         "animation": "./nfts/assets/player_chip.mp4",
         "metadata": "./nfts/assets/player_chip.json"
+    },
+    "player_placement_1": {
+        "image": "./nfts/assets/fcp-1st.gif",
+        "animation": "./nfts/assets/fcp-1st.mp4",
+        "metadata": "./nfts/assets/fcp-1st.json"
+    },
+    "player_placement_2": {
+        "image": "./nfts/assets/fcp-2nd.gif",
+        "animation": "./nfts/assets/fcp-2nd.mp4",
+        "metadata": "./nfts/assets/fcp-2nd.json"
+    },
+    "player_placement_3": {
+        "image": "./nfts/assets/fcp-3rd.gif",
+        "animation": "./nfts/assets/fcp-3rd.mp4",
+        "metadata": "./nfts/assets/fcp-3rd.json"
     }
 }

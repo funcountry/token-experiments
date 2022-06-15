@@ -19,7 +19,8 @@ export type PlayerGrant = {
     'grant_status': string,
     'grant_type': string,
     'solana_wallet': string,
-    'amount': number
+    'amount': number,
+    'data': string
 };
 
 export type Player = {
@@ -107,6 +108,25 @@ export async function get_one_game_grant(db:any, game_id:string, grantType:strin
     return grant;
 }
 
+export type GameCompleted = {
+    'game_id':string,
+    'game_player_count':number,
+    'rank': number,
+    'player_id': string
+};
+
+export async function get_game_completeds(db: any) {
+    const data:Array<GameCompleted> = await db.any(`SELECT 
+        game_id,
+        game_player_count,
+        rank,
+        user_id as player_id
+    FROM
+        server_production.game_completed`);
+
+    return data;
+}
+
 export async function get_host_holdem_grant(db:any, game_id:string) {
     const grant:PlayerGrant = await db.one(`SELECT
         grants.id as grant_id,
@@ -123,6 +143,24 @@ export async function get_host_holdem_grant(db:any, game_id:string) {
         AND grants.grant_type = \'host_holdem_grant\';`, game_id);
 
     return grant;
+}
+
+export async function get_player_placement_grants(db:any, game_id:string, player_id:string) {
+    return await db.any(`SELECT
+        grants.id as grant_id,
+        grants.game_id as game_id,
+        grants.player_id as player_id,
+        grants.grant_type as grant_type,
+        grants.grant_status as grant_status,
+        grants.solana_wallet as solana_wallet,
+        grants.amount as amount,
+        grants.data as data
+     FROM
+        ` + schema + `.player_grants as grants
+     WHERE
+        grants.game_id = $1
+        AND grants.player_id=$2
+        AND grants.grant_type = \'player_placement_grant\';`, [game_id, player_id]);
 }
 
 export async function get_player_holdem_grant(db:any, game_id:string, player_id:string) {
@@ -171,7 +209,8 @@ export async function get_grants(db:any, grantStatus:string, grantType:string) {
         grants.grant_type as grant_type,
         grants.grant_status as grant_status,
         wallet.solana_wallet as solana_wallet,
-        grants.amount as amount
+        grants.amount as amount,
+        grants.data as data
      FROM
         ` + schema + `.player_grants as grants
         LEFT JOIN
@@ -258,6 +297,14 @@ export async function create_player_holdem_grant(db:any, game:Game, player:Playe
     await db.none(`
         INSERT INTO ` + schema + `.player_grants(id, game_id, player_id, grant_type, grant_status, amount) VALUES (
             $1, $2, $3, \'player_holdem_grant\', \'new\', $4);`, [grant_id, game.game_id, player.player_id, amount]);
+}
+
+export async function create_generic_player_nft_grant(db:any, game_id:string, player_id:string, grantType:string, data:string) {
+    console.log("Granting generic player nft", game_id, player_id, grantType, data);
+    const grant_id:string = uuid.v4();
+    await db.none(`
+        INSERT INTO ` + schema + `.player_grants(id, game_id, player_id, grant_type, grant_status, amount, data) VALUES (
+            $1, $2, $3, $4, \'new\', $5, $6);`, [grant_id, game_id, player_id, grantType, 1, data]);
 }
 
 export async function create_player_nft_grant(db:any, game:Game, player:Player) {
