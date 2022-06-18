@@ -34,22 +34,28 @@ async function doHosts(db:any, games:any)  {
 
 async function doPlayers(db:any, games:any)  {
     for(const game of games) {
-        try {
-            const grant:event_data.PlayerGrant = await event_data.get_host_holdem_grant(db, game.game_id);
-            console.log("Found host grant for game", game.game_id);
-        }
-        catch(e) {
-            console.log("No host grant for game", game.game_id);
-            event_data.create_host_holdem_grant(db, game, 1000000000000);
-        }
+        const players:Array<event_data.Player> = await event_data.get_game_players(db, game.game_id);
+        for(const player of players) {
+            try {
+                const grant:event_data.PlayerGrant = await event_data.get_player_holdem_grant(db, game.game_id, player.player_id);
+                console.log("Found player token grant for", player, game);
+            }
+            catch(e) {
+                //TODO: AE _ Yeah, I know this is a bad way to do this.
+                console.log("Creating grant for player", player);
+                await event_data.create_player_holdem_grant(db, game, player, 500000000000);
+            }
 
-        try {
-            const grant:event_data.PlayerGrant = await event_data.get_one_game_grant(db, game.game_id, "host_nft_grant");
-            console.log("Found host NFT grant for game", game.game_id);
-        }
-        catch(e) {
-            console.log("No host NFT grant for game", game.game_id);
-            event_data.create_host_nft_grant(db, game);
+            try {
+                const grant:event_data.PlayerGrant = await event_data.get_player_nft_grant(db, game.game_id, player.player_id);
+                console.log("Found player nft grant for", player, game);
+                // console.log(grant);
+            }
+            catch(e) {
+                //TODO: AE _ Yeah, I know this is a bad way to do this.
+                console.log("Creating nft grant for player", player);
+                await event_data.create_player_nft_grant(db, game, player);
+            }
         }
     }
 };
@@ -90,8 +96,8 @@ const run = async() => {
 
     const games:Array<event_data.Game> = await event_data.get_games(db);
 
-    // await doHosts(db, games);
-    // await doPlayers(db, games);
+    await doHosts(db, games);
+    await doPlayers(db, games);
     await doPlacements(db, games);
 };
 

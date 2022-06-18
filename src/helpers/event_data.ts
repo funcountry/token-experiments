@@ -79,13 +79,18 @@ export async function get_games(db:any) {
 }
 
 export async function get_game_players(db: any, game_id:string ) {
+    // const data:Array<Player> = await db.any(`SELECT 
+    //     rh.user_id as player_id,
+    //     COUNT(DISTINCT rh.id)
+    //  FROM server_production.game_request_handled rh
+    //  WHERE 
+    //     rh.game_id=$1
+    //     AND rh.game_request_kind=\'table.bet\' GROUP BY rh.user_id;`, [game_id]);
     const data:Array<Player> = await db.any(`SELECT 
-        rh.user_id as player_id,
-        COUNT(DISTINCT rh.id)
-     FROM server_production.game_request_handled rh
+        gc.user_id as player_id
+     FROM server_production.game_completed as gc
      WHERE 
-        rh.game_id=$1
-        AND rh.game_request_kind=\'table.bet\' GROUP BY rh.user_id;`, [game_id]);
+        gc.game_id=$1;`, [game_id]);
 
     return data;
 }
