@@ -1,0 +1,19 @@
+{
+  "name": "FIRST PLACE NFT Citizen's Token",
+  "symbol": "FCPNFT",
+  "description": "First Place in Fun Country Poker Citizen's Game",
+  "animation_url": "<%= t.animation_uri %>",
+  "properties": {
+    "files": [
+      {
+        "uri": "<%= t.image_uri %>",
+        "type": "image/gif"
+      },
+      {
+        "uri": "<%= t.animation_uri %>",
+        "type": "video/mp4"
+      }
+    ],
+    "category": "image"
+  }
+}

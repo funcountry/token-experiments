@@ -21,15 +21,20 @@ async function uploadMedia(media:string, jwt:string) {
     const data = new FormData();
     data.append('file', fs.createReadStream(media));
 
-    const res = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', data, {
-        headers: {
-            'Content-Type': `multipart/form-data;`,
-            Authorization: `Bearer ${jwt}`,
-        }
-    });
-    const json = res.data;
-    // console.log(json);
-    return json.IpfsHash;
+    try {
+        const res = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', data, {
+            headers: {
+                'Content-Type': `multipart/form-data;`,
+                Authorization: `Bearer ${jwt}`,
+            }
+        });
+        const json = res.data;
+        // console.log(json);
+        return json.IpfsHash;
+    }
+    catch(e) {
+        console.log(e);
+    }
 }
 
 export async function pinataUpload(
@@ -39,12 +44,14 @@ export async function pinataUpload(
 ) {
     const gatewayUrl = gateway ? gateway : `https://cf-ipfs.com`;
 
+    const extension = image.split('.').pop();
+
     const imageCid = await uploadMedia(image, jwt);
-    console.log('uploaded image: ', `${gatewayUrl}/ipfs/${imageCid}`);
+    const mediaUrl = `${gatewayUrl}/ipfs/${imageCid}?ext=${extension}`;
+    console.log('uploaded image: ', mediaUrl);
     // await sleep(500);
     //
 
-    const mediaUrl = `${gatewayUrl}/ipfs/${imageCid}`;
     return mediaUrl;
 
 

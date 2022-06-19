@@ -28,7 +28,10 @@ const run = async() => {
             for(let i = 0; i < 3; i++) {
                 try {
                     console.log("Granting");
-                    await tm.grant(grant.solana_wallet, grant.amount);
+                    await tm.grant(db, grant.grant_id, grant.solana_wallet, grant.amount);
+                    // while(res) {
+                    //     console.log(res);
+                    // }
                 }
                 catch(e) {
                     console.log(e);

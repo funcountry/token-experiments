@@ -16,6 +16,7 @@ const run = async() => {
     const baseOffchainMetadataFile = config.base_offchain_metadata;
     const baseOffchainMetadata = JSON.parse(fs.readFileSync(baseOffchainMetadataFile).toString());
     // console.log(baseMetadata.name);
+    await nft_helper.uploadNfts(nftMapFile, nftCacheFile, config.pinataJwt);
 
     const nftm = new nft_helper.NftManager(
         config.pinataJwt,
@@ -30,8 +31,10 @@ const run = async() => {
 
     await nftm.setup();
 
-    nftm.mintNft("host_nft");
-    // nft_helper.uploadNfts(nftMapFile, nftCacheFile, config.pinataJwt);
+    const mintedNft = await nftm.mintNft("host_nft");
+    console.log(mintedNft.mint.publicKey.toString());
+    const mintedNft2 = await nftm.mintNft("player_nft");
+    console.log(mintedNft2.mint.publicKey.toString());
 
     // await pinata.pinataUpload(
     //     "./nfts/citizen_placements_v1/assets/0.gif",
