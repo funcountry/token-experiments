@@ -9,6 +9,11 @@ const config = require('../config.json');
  * 3. If not, create a player holdem token grant
  */
 
+async function doHands(db:any, games:any)  {
+    console.log("HAND GRANTS");
+
+    // get all hands that occurred since last run
+}
 
 async function doHosts(db:any, games:any)  {
     for(const game of games) {
@@ -96,9 +101,10 @@ const run = async() => {
 
     const games:Array<event_data.Game> = await event_data.get_games(db);
 
-    await doHosts(db, games);
-    await doPlayers(db, games);
-    await doPlacements(db, games);
+    await doHands(db, games);
+    // await doHosts(db, games);
+    // await doPlayers(db, games);
+    // await doPlacements(db, games);
 };
 
 run();
