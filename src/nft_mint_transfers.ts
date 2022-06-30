@@ -111,20 +111,21 @@ const run = async() => {
     const nftm = new nft_helper.NftManager(
         config.pinataJwt,
         require('../key.json'),
-        config.solana_cluster,
+        config.solana_rpc_endpoint,
         config.holdem_payer_address,
         nftCacheFile,
         nftMapFile,
         baseMetadata,
         baseOffchainMetadata);
     await nftm.setup();
-    await tm.setup();
+    console.log(nftm);
+    // await tm.setup();
 
-    await nft_helper.uploadNfts(nftMapFile, nftCacheFile, config.pinataJwt);
+    // await nft_helper.uploadNfts(nftMapFile, nftCacheFile, config.pinataJwt);
 
-    await doGrants(await event_data.get_grants(db, "new", "player_nft_grant"), nftm, db);
-    await doGrants(await event_data.get_grants(db, "new", "host_nft_grant"), nftm, db);
-    await doGrants(await event_data.get_grants(db, "new", "player_placement_grant"), nftm, db);
+    // await doGrants(await event_data.get_grants(db, "new", "player_nft_grant"), nftm, db);
+    // await doGrants(await event_data.get_grants(db, "new", "host_nft_grant"), nftm, db);
+    // await doGrants(await event_data.get_grants(db, "new", "player_placement_grant"), nftm, db);
 };
 
 run();

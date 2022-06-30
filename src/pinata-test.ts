@@ -21,7 +21,7 @@ const run = async() => {
     const nftm = new nft_helper.NftManager(
         config.pinataJwt,
         require('../key.json'),
-        config.solana_cluster,
+        config.solana_rpc_endpoint,
         config.holdem_payer_address,
         nftCacheFile,
         nftMapFile,

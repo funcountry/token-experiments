@@ -85,7 +85,7 @@ export class NftManager {
     constructor(
         jwt: Object,
         key:Object,
-        network:string,
+        endpoint:string,
         payer_address:string,
         nftCacheFile:string,
         nftMapFile:string,
@@ -93,8 +93,9 @@ export class NftManager {
         _baseOffchainMetadata:object) {
         this.jwt = jwt;
         this.kp = load_key(key);
+        console.log("Making solana connection", endpoint);
         this.connection = new solana.Connection(
-            solana.clusterApiUrl(network),
+            endpoint,
             'confirmed'
         );
         this.metaplex = new Metaplex(this.connection);
