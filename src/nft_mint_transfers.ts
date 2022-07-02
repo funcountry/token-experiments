@@ -13,11 +13,11 @@ import fs from 'fs';
  */
 
 async function doGrants(grants:any, nftm:any, db:any) {
-    console.log("Do grants");
+    // console.log("Do grants");
     for(const grant of grants) {
-        console.log(grant);
+        // console.log(grant);
         if(grant.solana_wallet) {
-            console.log("FOUND WALLET", grant.player_id);
+            console.log("FOUND WALLET", grant.player_id, grant.solana_wallet);
             let nft_name = "";
 
             if(grant.grant_type == "host_nft_grant") {
@@ -45,8 +45,23 @@ async function doGrants(grants:any, nftm:any, db:any) {
 
             if(nft_name) {
                 console.log("MINTING NFT", nft_name);
-                const mintedNft = await nftm.mintNft(nft_name);
-                console.log("MINTED NFT", mintedNft.mint.publicKey.toString());
+
+                let mintedNft = null;
+
+                for(let i = 0; i < 10; i++) {
+                    try {
+                        mintedNft = await nftm.mintNft(nft_name);
+                        console.log("MINTED NFT", mintedNft.mint.publicKey.toString());
+                        break;
+                    }catch(e) {
+                        console.log("ERROR minting on try", i);
+                        console.log(e);
+                    }
+                }
+
+                if(mintedNft == null) {
+                    throw  Error("Failed");
+                }
 
                 await event_data.log_transaction(
                     db,
@@ -56,8 +71,25 @@ async function doGrants(grants:any, nftm:any, db:any) {
                     'success',
                     nft_name
                 );
+                console.log("TRANSFERING NFT TO", grant.solana_wallet);
 
-                let res = await nftm.transferNft(mintedNft, grant.solana_wallet);
+                let res = null;
+
+                for(let i = 0; i < 10; i++) {
+                    try {
+                        res = await nftm.transferNft(mintedNft, grant.solana_wallet);
+                        console.log("TRANSFERED NFT", res);
+                        break;
+                    }
+                    catch(e) {
+                        console.log("ERROR TRANSFERING NFT ON TRY", i);
+                        console.log(e);
+                    }
+                }
+
+                if(res == null) {
+                    throw Error("Failed");
+                }
 
                 await event_data.log_transaction(
                     db,
@@ -90,10 +122,10 @@ async function doGrants(grants:any, nftm:any, db:any) {
             //     break;
             // }
 
-            console.log("Updated");
+            // console.log("Updated");
         }
         else {
-            console.log("NO WALLET", grant.player_id);
+            // console.log("NO WALLET", grant.player_id);
         }
     }
 }
@@ -118,14 +150,17 @@ const run = async() => {
         baseMetadata,
         baseOffchainMetadata);
     await nftm.setup();
-    console.log(nftm);
+    // console.log(nftm);
     // await tm.setup();
 
     // await nft_helper.uploadNfts(nftMapFile, nftCacheFile, config.pinataJwt);
 
-    // await doGrants(await event_data.get_grants(db, "new", "player_nft_grant"), nftm, db);
-    // await doGrants(await event_data.get_grants(db, "new", "host_nft_grant"), nftm, db);
-    // await doGrants(await event_data.get_grants(db, "new", "player_placement_grant"), nftm, db);
+    await doGrants(await event_data.get_grants(db, "retry", "player_nft_grant"), nftm, db);
+    await doGrants(await event_data.get_grants(db, "retry", "host_nft_grant"), nftm, db);
+    await doGrants(await event_data.get_grants(db, "retry", "player_placement_grant"), nftm, db);
+    await doGrants(await event_data.get_grants(db, "new", "player_nft_grant"), nftm, db);
+    await doGrants(await event_data.get_grants(db, "new", "host_nft_grant"), nftm, db);
+    await doGrants(await event_data.get_grants(db, "new", "player_placement_grant"), nftm, db);
 };
 
 run();

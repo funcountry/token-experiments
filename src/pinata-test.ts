@@ -27,14 +27,14 @@ const run = async() => {
         nftMapFile,
         baseMetadata,
         baseOffchainMetadata);
-    // console.log(nftm);
+    console.log(nftm);
 
     await nftm.setup();
 
     const mintedNft = await nftm.mintNft("host_nft");
     console.log(mintedNft.mint.publicKey.toString());
-    const mintedNft2 = await nftm.mintNft("player_nft");
-    console.log(mintedNft2.mint.publicKey.toString());
+    // const mintedNft2 = await nftm.mintNft("player_nft");
+    // console.log(mintedNft2.mint.publicKey.toString());
 
     // await pinata.pinataUpload(
     //     "./nfts/citizen_placements_v1/assets/0.gif",
