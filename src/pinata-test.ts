@@ -27,17 +27,18 @@ const run = async() => {
         nftMapFile,
         baseMetadata,
         baseOffchainMetadata);
-    console.log(nftm);
+    // console.log(nftm);
 
     await nftm.setup();
 
-    const mintedNft = await nftm.mintNft("host_nft");
+    const mintedNft = await nftm.mintNftTo("host_nft", "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE");
     console.log(mintedNft.mint.publicKey.toString());
+    // await nftm.transferNft(mintedNft, "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE");
 
     // const foundNft = await nftm.loadNft(mintedNft.mint.publicKey.toString());
     // console.log(mintedNft);
     // console.log(foundNft);
-    // const foundNft = await nftm.loadNft("DgnPQXa3fWAy8FKHWQXXfwbfANb1fcwbvwsL7zuR8ZC8");
+    // const foundNft = await nftm.loadNft("8ofCjk7ccEv2SgFPJ4NcX7tW59spim3RQYbTUs4YHqzq");
     // console.log(foundNft);
     // console.log(foundNft.mint);
     // console.log("MINTING TO");

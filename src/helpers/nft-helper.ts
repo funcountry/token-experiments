@@ -12,7 +12,6 @@ import {
 // }  from  '/Users/aelaguiz/workspace/metaplex-program-library/token-metadata/js/src/mpl-token-metadata';
 
 const solana = require('@solana/web3.js');
-// const splToken = require('@solana/spl-token');
 // const mplTokenMetadata = require("@metaplex-foundation/mpl-token-metadata");
 // const metaplex = require('@metaplex/js');
 // const anchor = require("@project-serum/anchor");
@@ -20,7 +19,6 @@ import {
     Metaplex,
     keypairIdentity
 } from "@metaplex-foundation/js-next";
-const splToken = require('@solana/spl-token');
 
 
 function load_key(key:any) {
@@ -103,7 +101,7 @@ export class NftManager {
         // console.log("Making solana connection", endpoint);
         this.connection = new solana.Connection(
             endpoint,
-            'confirmed'
+            'finalized'
         );
         this.metaplex = new Metaplex(this.connection);
 
@@ -129,7 +127,7 @@ export class NftManager {
      *  Host's name
      *  Date of tournament
      */
-    public async mintNft(nftIdentifier:string) {
+    public async mintNftTo(nftIdentifier:string, toAddress:string) {
         // console.log("Minting", nftIdentifier);
 
         const imageUri = this.nftCache[this.nftMap[nftIdentifier]['image']];
@@ -181,25 +179,10 @@ export class NftManager {
         }, {
             'varName': 't'
         });
-        // console.log(renderedMetadata);
 
         const md:DataV2 = JSON.parse(renderedMetadata);
 
-        // let nft:NFT = {
-        //     mint: null
-        // };
-
-        // nft.mint = await splToken.createMint(
-        //     this.connection,
-        //     this.kp,
-        //     this.kp.publicKey,
-        //     this.kp.publicKey,
-        //     0
-        // );
-
-        // console.log(nft.mint);
-        // console.log(nft.mint.toString());
-        // console.log(md);
+        const destPublicKey = new solana.PublicKey(toAddress);
 
         const mintedNft = await this.metaplex.nfts().create({
             uri: offchainUrl,
@@ -208,87 +191,16 @@ export class NftManager {
             symbol: md.symbol,
             maxSupply: 5000,
             payer: this.kp,
-            mintAuthority: this.kp.address,
-            freezeAuthority: this.kp.address,
-            owner: this.kp.address
+            mintAuthority: this.kp,
+            freezeAuthority: this.kp.publicKey,
+            owner: destPublicKey
         });
 
-        console.log(mintedNft);
         console.log("Mint", mintedNft.mint.publicKey.toString());
         console.log("Associated Token", mintedNft.associatedToken.toString());
         console.log("Master edition", mintedNft.masterEdition.toString());
         console.log("Mint on nft", mintedNft.nft.mint.toString());
 
-        // const tokenAddress = mintedNft.mint.publicKey.toString();
-        // console.log(tokenAddress);
         return mintedNft;
-        
-        // Now to transfer it to recipient
-    }
-
-    public async loadNft(mintAddress: string) {
-        const mint = new solana.PublicKey(mintAddress);
-
-        return await this.metaplex.nfts().findByMint(mint);
-    }
-
-    public async mintTo(nft:any) {
-        return await this.metaplex.nfts().printNewEdition(nft.mint);
-    }
-
-
-    public async transferNft(nft:any, toAddress:string) {
-        // console.log(this.metaplex);
-        // let n = this.metaplex.nfts();
-        // console.log(n);
-        // console.log(n.create);
-        // console.log(n.mintTo);
-        // console.log(n.mintToBUilder);
-        // let p = this.metaplex.programs();
-        // console.log(p);
-        // console.log(p.mintTo);
-        // console.log(p.mintToBuilder);
-        const bal = await this.connection.getBalance(this.kp.publicKey);
-
-        console.log("SOL BALANCE", bal);
-
-        console.log("GETTING FROM TOKEN ACCOUNT", nft.mint.toString());
-
-
-        const fromTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
-            this.connection,
-            this.kp,
-            nft.mint,
-            this.kp.publicKey);
-
-        console.log("From Wallet", this.kp.publicKey.toString(), "from account", fromTokenAccount.address.toString());
-
-        const toWallet = new solana.PublicKey(toAddress.toString());
-        console.log("To wallet", toWallet.toString());
-
-        const toTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
-            this.connection,
-            this.kp,
-            nft.mint,
-            toWallet);
-        console.log("To Token Account", toTokenAccount.address.toString());
-        console.log("Mint address", nft.mint.toString());
-        console.log("Mint metadata address", nft.metadataAccount.owner.toString());
-        console.log("Mint update authority", nft.updateAuthority.toString());
-        console.log("KP", this.kp.publicKey.toString());
-        console.log("Creator", nft.creators[0].address.toString());
-
-        // const res = await this.metaplex.nfts().printNewEdition(nft.mint);
-
-        const res = await splToken.mintTo(
-            this.connection,
-            this.kp,
-            nft.mint,
-            toTokenAccount.address,
-            this.kp,
-            1,
-        );
-        console.log("Transfer completed", res);
-        return res;
     }
 }

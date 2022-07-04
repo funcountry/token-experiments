@@ -46,22 +46,8 @@ async function doGrants(grants:any, nftm:any, db:any) {
             if(nft_name) {
                 console.log("MINTING NFT", nft_name);
 
-                let mintedNft = null;
-
-                for(let i = 0; i < 10; i++) {
-                    try {
-                        mintedNft = await nftm.mintNft(nft_name);
-                        console.log("MINTED NFT", mintedNft.mint.publicKey.toString());
-                        break;
-                    }catch(e) {
-                        console.log("ERROR minting on try", i);
-                        console.log(e);
-                    }
-                }
-
-                if(mintedNft == null) {
-                    throw  Error("Failed");
-                }
+                const mintedNft = await nftm.mintNftTo(nft_name, grant.solana_wallet);
+                console.log("MINTED NFT", mintedNft.mint.publicKey.toString());
 
                 await event_data.log_transaction(
                     db,
@@ -70,34 +56,6 @@ async function doGrants(grants:any, nftm:any, db:any) {
                     mintedNft.mint.publicKey.toString(),
                     'success',
                     nft_name
-                );
-                console.log("TRANSFERING NFT TO", grant.solana_wallet);
-
-                let res = null;
-
-                for(let i = 0; i < 10; i++) {
-                    try {
-                        res = await nftm.transferNft(mintedNft, grant.solana_wallet);
-                        console.log("TRANSFERED NFT", res);
-                        break;
-                    }
-                    catch(e) {
-                        console.log("ERROR TRANSFERING NFT ON TRY", i);
-                        console.log(e);
-                    }
-                }
-
-                if(res == null) {
-                    throw Error("Failed");
-                }
-
-                await event_data.log_transaction(
-                    db,
-                    grant.grant_id,
-                    'transfer_nft',
-                    res,
-                    'success',
-                    grant.solana_wallet
                 );
 
                 await event_data.complete_grant(db, grant.grant_id, grant.solana_wallet);
