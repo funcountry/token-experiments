@@ -71,6 +71,9 @@ export async function uploadNfts(nftMapFile:string, nftCacheFile:string, jwt:str
     await fs.writeFileSync(nftCacheFile, JSON.stringify(nftCache));
 }
 
+export type NFT = {
+    mint: any;
+}
 
 
 export class NftManager {
@@ -181,15 +184,40 @@ export class NftManager {
         // console.log(renderedMetadata);
 
         const md:DataV2 = JSON.parse(renderedMetadata);
+
+        // let nft:NFT = {
+        //     mint: null
+        // };
+
+        // nft.mint = await splToken.createMint(
+        //     this.connection,
+        //     this.kp,
+        //     this.kp.publicKey,
+        //     this.kp.publicKey,
+        //     0
+        // );
+
+        // console.log(nft.mint);
+        // console.log(nft.mint.toString());
         // console.log(md);
 
         const mintedNft = await this.metaplex.nfts().create({
             uri: offchainUrl,
-            'name': md.name,
-            'symbol': md.symbol
+            isMutable: true,
+            name: md.name,
+            symbol: md.symbol,
+            maxSupply: 5000,
+            payer: this.kp,
+            mintAuthority: this.kp.address,
+            freezeAuthority: this.kp.address,
+            owner: this.kp.address
         });
 
-        // console.log(mintedNft);
+        console.log(mintedNft);
+        console.log("Mint", mintedNft.mint.publicKey.toString());
+        console.log("Associated Token", mintedNft.associatedToken.toString());
+        console.log("Master edition", mintedNft.masterEdition.toString());
+        console.log("Mint on nft", mintedNft.nft.mint.toString());
 
         // const tokenAddress = mintedNft.mint.publicKey.toString();
         // console.log(tokenAddress);
@@ -198,30 +226,67 @@ export class NftManager {
         // Now to transfer it to recipient
     }
 
+    public async loadNft(mintAddress: string) {
+        const mint = new solana.PublicKey(mintAddress);
+
+        return await this.metaplex.nfts().findByMint(mint);
+    }
+
+    public async mintTo(nft:any) {
+        return await this.metaplex.nfts().printNewEdition(nft.mint);
+    }
+
+
     public async transferNft(nft:any, toAddress:string) {
+        // console.log(this.metaplex);
+        // let n = this.metaplex.nfts();
+        // console.log(n);
+        // console.log(n.create);
+        // console.log(n.mintTo);
+        // console.log(n.mintToBUilder);
+        // let p = this.metaplex.programs();
+        // console.log(p);
+        // console.log(p.mintTo);
+        // console.log(p.mintToBuilder);
+        const bal = await this.connection.getBalance(this.kp.publicKey);
+
+        console.log("SOL BALANCE", bal);
+
+        console.log("GETTING FROM TOKEN ACCOUNT", nft.mint.toString());
+
+
         const fromTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
             this.connection,
             this.kp,
-            nft.mint.publicKey,
+            nft.mint,
             this.kp.publicKey);
 
-        console.log("From Wallet", this.kp.toString(), "from account", fromTokenAccount.address.toString());
+        console.log("From Wallet", this.kp.publicKey.toString(), "from account", fromTokenAccount.address.toString());
 
-        const toWallet = new solana.PublicKey(toAddress);
+        const toWallet = new solana.PublicKey(toAddress.toString());
+        console.log("To wallet", toWallet.toString());
 
         const toTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
             this.connection,
             this.kp,
-            nft.mint.publicKey,
+            nft.mint,
             toWallet);
         console.log("To Token Account", toTokenAccount.address.toString());
-        const res = await splToken.transfer(
+        console.log("Mint address", nft.mint.toString());
+        console.log("Mint metadata address", nft.metadataAccount.owner.toString());
+        console.log("Mint update authority", nft.updateAuthority.toString());
+        console.log("KP", this.kp.publicKey.toString());
+        console.log("Creator", nft.creators[0].address.toString());
+
+        // const res = await this.metaplex.nfts().printNewEdition(nft.mint);
+
+        const res = await splToken.mintTo(
             this.connection,
             this.kp,
-            fromTokenAccount.address,
+            nft.mint,
             toTokenAccount.address,
             this.kp,
-            1
+            1,
         );
         console.log("Transfer completed", res);
         return res;

@@ -33,6 +33,17 @@ const run = async() => {
 
     const mintedNft = await nftm.mintNft("host_nft");
     console.log(mintedNft.mint.publicKey.toString());
+
+    // const foundNft = await nftm.loadNft(mintedNft.mint.publicKey.toString());
+    // console.log(mintedNft);
+    // console.log(foundNft);
+    // const foundNft = await nftm.loadNft("DgnPQXa3fWAy8FKHWQXXfwbfANb1fcwbvwsL7zuR8ZC8");
+    // console.log(foundNft);
+    // console.log(foundNft.mint);
+    // console.log("MINTING TO");
+    // await nftm.transferNft(foundNft, "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE");
+    // await nftm.transferNft(foundNft, "D5cBGFoUewTo4yW5AWti6creqxUKGMJCNFn8za3YwJb5");
+
     // const mintedNft2 = await nftm.mintNft("player_nft");
     // console.log(mintedNft2.mint.publicKey.toString());
 
@@ -45,3 +56,13 @@ const run = async() => {
 };
 
 run();
+
+// Minted test 6 2 8:00pm
+//2iAo8YdQ8D3ma7L3Mmm5qzjbGZBoDhh1xHofZYpVZdbE
+//
+//8:36pm
+//FbBzCdJsQoAk7z71RfkdryMdg6kmYihoGaaE6tDuzJDA
+//
+//9:46pm
+//9SVaCLapjbXkVw8FatyjG5iekcwYkGVHahHUuikUZtMo
+//
