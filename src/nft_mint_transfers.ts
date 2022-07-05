@@ -113,8 +113,8 @@ const run = async() => {
 
     // await nft_helper.uploadNfts(nftMapFile, nftCacheFile, config.pinataJwt);
 
-    await doGrants(await event_data.get_grants(db, "retry", "player_nft_grant"), nftm, db);
     await doGrants(await event_data.get_grants(db, "retry", "host_nft_grant"), nftm, db);
+    await doGrants(await event_data.get_grants(db, "retry", "player_nft_grant"), nftm, db);
     await doGrants(await event_data.get_grants(db, "retry", "player_placement_grant"), nftm, db);
     await doGrants(await event_data.get_grants(db, "new", "player_nft_grant"), nftm, db);
     await doGrants(await event_data.get_grants(db, "new", "host_nft_grant"), nftm, db);

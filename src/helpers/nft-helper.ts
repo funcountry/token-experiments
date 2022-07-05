@@ -189,7 +189,6 @@ export class NftManager {
             isMutable: true,
             name: md.name,
             symbol: md.symbol,
-            maxSupply: 5000,
             payer: this.kp,
             mintAuthority: this.kp,
             freezeAuthority: this.kp.publicKey,

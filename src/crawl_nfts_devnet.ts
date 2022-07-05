@@ -32,7 +32,7 @@ const run = async() => {
         FROM scratch_production.player_grants pg
             JOIN scratch_production.transaction_log lg
             ON pg.id=lg.grant_id
-        WHERE lg.transaction_type IN ('mint_nft', 'transfer_nft') AND pg.grant_status !='retry'
+        WHERE lg.transaction_type IN ('mint_nft', 'transfer_nft') AND pg.grant_status !='retry' AND lg.result='success'
         ORDER BY pg.record_created_ts DESC
         `);
 
@@ -42,8 +42,9 @@ const run = async() => {
         if(row.transaction_type == "transfer_nft") {
             let t = await devNetConnection.getTransaction(row.blockchain_transaction);
             if(t) {
-                console.log(row.blockchain_transaction, "is a DEVNET transaction");
+                console.log(row.grant_id, row.blockchain_transaction, "is a DEVNET transaction");
                 let r = await db.none("UPDATE scratch_production.player_grants SET grant_status='retry' WHERE id=$1", row.grant_id);
+                await db.none("UPDATE scratch_production.transaction_log SET result='devnet_retry' WHERE grant_id=$1", row.grant_id);
                 // console.log(r);
             }
             // else {
@@ -53,8 +54,9 @@ const run = async() => {
         else if(row.transaction_type == "mint_nft") {
             let a = await devNetConnection.getAccountInfo(new solana.PublicKey(row.blockchain_transaction));
             if(a) {
-                console.log(row.blockchain_transaction, "is a DEVNET account");
+                console.log(row.grant_id, row.blockchain_transaction, "is a DEVNET account");
                 let r = await db.none("UPDATE scratch_production.player_grants SET grant_status='retry' WHERE id=$1", row.grant_id);
+                await db.none("UPDATE scratch_production.transaction_log SET result='devnet_retry' WHERE grant_id=$1", row.grant_id);
                 // console.log(r);
             }
             // else {
