@@ -120,20 +120,53 @@ export type GameCompleted = {
     'player_id': string
 };
 
-export async function get_game_completeds(db: any) {
+export async function get_sng_game_completeds(db: any) {
     const data:Array<GameCompleted> = await db.any(`SELECT 
         game_id,
         game_player_count,
         rank,
         user_id as player_id
     FROM
-        server_production.game_completed`);
+        server_production.game_completed gc
+    WHERE gc.game_type='sng'`);
 
     return data;
 }
 
+export type UncheckedHand = {
+    'game_id':string,
+    'player_id': string,
+    'hand_cards': string,
+    'hand_score': number,
+    'hand_winner': number,
+    'hand_community_cards': string
+}
+
+export async function get_unchecked_hands_grants(db:any, grant_type:string) {
+    const grant:UncheckedHand[] = await db.any(`select
+        hc.game_id as game_id,
+        hc.user_id as player_id,
+        hc.hand_cards as hand_cards,
+        hc.hand_score as hand_score,
+        hc.hand_winner as hand_winner,
+        hc.hand_community_cards as hand_community_cards,
+        gcl.result as result
+    from
+        server_production.hand_completed hc
+        left join ` + schema + `.grant_check_log gcl
+    on
+        hc.game_id = gcl.game_id
+        and hc.user_id=gcl.player_id
+        and gcl.grant_type=$1
+    where
+        gcl.result is null`, grant_type);
+
+
+    return grant;
+}
+
 export async function get_host_holdem_grant(db:any, game_id:string) {
-    const grant:PlayerGrant = await db.one(`SELECT
+    const grant:PlayerGrant = await db.one(`select
         grants.id as grant_id,
         grants.game_id as game_id,
         grants.player_id as player_id,
@@ -141,17 +174,18 @@ export async function get_host_holdem_grant(db:any, game_id:string) {
         grants.grant_status as grant_status,
         grants.solana_wallet as solana_wallet,
         grants.amount as amount
-     FROM
+     from
         ` + schema + `.player_grants as grants
-     WHERE
+     where
         grants.game_id = $1
-        AND grants.grant_type = \'host_holdem_grant\';`, game_id);
+        and grants.grant_type = \'host_holdem_grant\';`, game_id);
 
     return grant;
 }
 
+
 export async function get_player_placement_grants(db:any, game_id:string, player_id:string) {
-    return await db.any(`SELECT
+    return await db.any(`select
         grants.id as grant_id,
         grants.game_id as game_id,
         grants.player_id as player_id,
@@ -160,16 +194,16 @@ export async function get_player_placement_grants(db:any, game_id:string, player
         grants.solana_wallet as solana_wallet,
         grants.amount as amount,
         grants.data as data
-     FROM
+     from
         ` + schema + `.player_grants as grants
-     WHERE
+     where
         grants.game_id = $1
-        AND grants.player_id=$2
-        AND grants.grant_type = \'player_placement_grant\';`, [game_id, player_id]);
+        and grants.player_id=$2
+        and grants.grant_type = \'player_placement_grant\';`, [game_id, player_id]);
 }
 
 export async function get_player_holdem_grant(db:any, game_id:string, player_id:string) {
-    const grant:PlayerGrant = await db.one(`SELECT
+    const grant:PlayerGrant = await db.one(`select
         grants.id as grant_id,
         grants.game_id as game_id,
         grants.player_id as player_id,
@@ -177,18 +211,18 @@ export async function get_player_holdem_grant(db:any, game_id:string, player_id:
         grants.grant_status as grant_status,
         grants.solana_wallet as solana_wallet,
         grants.amount as amount
-     FROM
+     from
         ` + schema + `.player_grants as grants
-     WHERE
+     where
         grants.game_id = $1
-        AND grants.player_id=$2
-        AND grants.grant_type = \'player_holdem_grant\';`, [game_id, player_id]);
+        and grants.player_id=$2
+        and grants.grant_type = \'player_holdem_grant\';`, [game_id, player_id]);
 
     return grant;
 }
 
 export async function get_player_nft_grant(db:any, game_id:string, player_id:string) {
-    const grant:PlayerGrant = await db.one(`SELECT
+    const grant:PlayerGrant = await db.one(`select
         grants.id as grant_id,
         grants.game_id as game_id,
         grants.player_id as player_id,
@@ -196,12 +230,12 @@ export async function get_player_nft_grant(db:any, game_id:string, player_id:str
         grants.grant_status as grant_status,
         grants.solana_wallet as solana_wallet,
         grants.amount as amount
-     FROM
+     from
         ` + schema + `.player_grants as grants
-     WHERE
+     where
         grants.game_id = $1
-        AND grants.player_id=$2
-        AND grants.grant_type = \'player_nft_grant\';`, [game_id, player_id]);
+        and grants.player_id=$2
+        and grants.grant_type = \'player_nft_grant\';`, [game_id, player_id]);
 
     return grant;
 }
