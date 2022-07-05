@@ -12,7 +12,6 @@ import {
 // }  from  '/Users/aelaguiz/workspace/metaplex-program-library/token-metadata/js/src/mpl-token-metadata';
 
 const solana = require('@solana/web3.js');
-// const splToken = require('@solana/spl-token');
 // const mplTokenMetadata = require("@metaplex-foundation/mpl-token-metadata");
 // const metaplex = require('@metaplex/js');
 // const anchor = require("@project-serum/anchor");
@@ -20,7 +19,6 @@ import {
     Metaplex,
     keypairIdentity
 } from "@metaplex-foundation/js-next";
-const splToken = require('@solana/spl-token');
 
 
 function load_key(key:any) {
@@ -30,9 +28,9 @@ function load_key(key:any) {
 
 export async function uploadNfts(nftMapFile:string, nftCacheFile:string, jwt:string) {
     const nftMap = JSON.parse(fs.readFileSync(nftMapFile).toString());
-    console.log(nftMap);
+    // console.log(nftMap);
     const nftCache = JSON.parse(fs.readFileSync(nftCacheFile).toString());
-    console.log(nftCache);
+    // console.log(nftCache);
     // console.log(nftMapFile);
     // const nftMap:object = require(nftMapFile);
     // console.log(nftMap);
@@ -57,16 +55,23 @@ export async function uploadNfts(nftMapFile:string, nftCacheFile:string, jwt:str
                     ""
                 );
 
+                if(!url) {
+                    throw new Error("UPLOAD FAILED");
+                }
+
                 console.log("Uploaded to", url);
                 nftCache[imagePath] = url;
             }
         }
     }
 
-    console.log(nftCache);
+    // console.log(nftCache);
     await fs.writeFileSync(nftCacheFile, JSON.stringify(nftCache));
 }
 
+export type NFT = {
+    mint: any;
+}
 
 
 export class NftManager {
@@ -85,7 +90,7 @@ export class NftManager {
     constructor(
         jwt: Object,
         key:Object,
-        network:string,
+        endpoint:string,
         payer_address:string,
         nftCacheFile:string,
         nftMapFile:string,
@@ -93,9 +98,10 @@ export class NftManager {
         _baseOffchainMetadata:object) {
         this.jwt = jwt;
         this.kp = load_key(key);
+        // console.log("Making solana connection", endpoint);
         this.connection = new solana.Connection(
-            solana.clusterApiUrl(network),
-            'confirmed'
+            endpoint,
+            'finalized'
         );
         this.metaplex = new Metaplex(this.connection);
 
@@ -121,24 +127,24 @@ export class NftManager {
      *  Host's name
      *  Date of tournament
      */
-    public async mintNft(nftIdentifier:string) {
-        console.log("Minting", nftIdentifier);
+    public async mintNftTo(nftIdentifier:string, toAddress:string) {
+        // console.log("Minting", nftIdentifier);
 
         const imageUri = this.nftCache[this.nftMap[nftIdentifier]['image']];
         const animationUri = this.nftCache[this.nftMap[nftIdentifier]['animation']];
-        console.log(this.nftCache);
-        console.log(animationUri);
+        // console.log(this.nftCache);
+        // console.log(animationUri);
 
         const offchainMetadataFile:string = this.nftMap[nftIdentifier]['metadata'];
         const offChainMetadata  = JSON.parse(fs.readFileSync(offchainMetadataFile).toString());
 
         const combinedOffchainMetadata:object = JSON.parse(JSON.stringify(this.baseOffchainMetadata));
         Object.assign(combinedOffchainMetadata, offChainMetadata);
-        console.log("Off chain metadata", combinedOffchainMetadata);
+        // console.log("Off chain metadata", combinedOffchainMetadata);
 
         const combinedMetadata:object = JSON.parse(JSON.stringify(this.baseMetadata));
         Object.assign(combinedMetadata, offChainMetadata);
-        console.log("On Chain metadata", combinedMetadata);
+        // console.log("On Chain metadata", combinedMetadata);
 
 
         // Render off chain metdata
@@ -148,8 +154,8 @@ export class NftManager {
         }, {
             'varName': 't'
         });
-        console.log("Offchain data");
-        console.log(renderedOffchain);
+        // console.log("Offchain data");
+        // console.log(renderedOffchain);
 
         // Upload off chain metadata
         fs.writeFileSync('tempJson.json', renderedOffchain);
@@ -159,8 +165,11 @@ export class NftManager {
             this.jwt,
             ""
         );
+        if(offchainUrl === undefined) {
+            throw new Error("Failed to upload metadata");
+        }
 
-        console.log("Uploaded offchain metadata to", offchainUrl);
+        // console.log("Uploaded offchain metadata to", offchainUrl);
 
         //// Render onchain metdata
         const renderedMetadata:any = await Eta.render(JSON.stringify(combinedMetadata), {
@@ -170,54 +179,27 @@ export class NftManager {
         }, {
             'varName': 't'
         });
-        console.log(renderedMetadata);
 
         const md:DataV2 = JSON.parse(renderedMetadata);
-        console.log(md);
+
+        const destPublicKey = new solana.PublicKey(toAddress);
 
         const mintedNft = await this.metaplex.nfts().create({
             uri: offchainUrl,
-            'name': md.name,
-            'symbol': md.symbol
+            isMutable: true,
+            name: md.name,
+            symbol: md.symbol,
+            payer: this.kp,
+            mintAuthority: this.kp,
+            freezeAuthority: this.kp.publicKey,
+            owner: destPublicKey
         });
 
-        // console.log(mintedNft);
+        console.log("Mint", mintedNft.mint.publicKey.toString());
+        console.log("Associated Token", mintedNft.associatedToken.toString());
+        console.log("Master edition", mintedNft.masterEdition.toString());
+        console.log("Mint on nft", mintedNft.nft.mint.toString());
 
-        // const tokenAddress = mintedNft.mint.publicKey.toString();
-        // console.log(tokenAddress);
         return mintedNft;
-        
-        // Now to transfer it to recipient
-    }
-
-    public async transferNft(nft:any, toAddress:string) {
-        const fromTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
-            this.connection,
-            this.kp,
-            nft.mint.publicKey,
-            this.kp.publicKey);
-        console.log("From Token Account");
-        console.log(fromTokenAccount.address.toString());
-
-        const toWallet = new solana.PublicKey(toAddress);
-
-        const toTokenAccount = await splToken.getOrCreateAssociatedTokenAccount(
-            this.connection,
-            this.kp,
-            nft.mint.publicKey,
-            toWallet);
-        console.log("To Token Account");
-        console.log(toTokenAccount.address.toString());
-        const res = await splToken.transfer(
-            this.connection,
-            this.kp,
-            fromTokenAccount.address,
-            toTokenAccount.address,
-            this.kp,
-            1
-        );
-        console.log("Transfer completed");
-        console.log(res);
-        return res;
     }
 }

@@ -21,7 +21,7 @@ const run = async() => {
     const nftm = new nft_helper.NftManager(
         config.pinataJwt,
         require('../key.json'),
-        config.solana_cluster,
+        config.solana_rpc_endpoint,
         config.holdem_payer_address,
         nftCacheFile,
         nftMapFile,
@@ -31,10 +31,22 @@ const run = async() => {
 
     await nftm.setup();
 
-    const mintedNft = await nftm.mintNft("host_nft");
+    const mintedNft = await nftm.mintNftTo("host_nft", "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE");
     console.log(mintedNft.mint.publicKey.toString());
-    const mintedNft2 = await nftm.mintNft("player_nft");
-    console.log(mintedNft2.mint.publicKey.toString());
+    // await nftm.transferNft(mintedNft, "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE");
+
+    // const foundNft = await nftm.loadNft(mintedNft.mint.publicKey.toString());
+    // console.log(mintedNft);
+    // console.log(foundNft);
+    // const foundNft = await nftm.loadNft("8ofCjk7ccEv2SgFPJ4NcX7tW59spim3RQYbTUs4YHqzq");
+    // console.log(foundNft);
+    // console.log(foundNft.mint);
+    // console.log("MINTING TO");
+    // await nftm.transferNft(foundNft, "sjZcLR8dVxz1VxJtBAVWSLWot4eVEF3m84UPKJvobRE");
+    // await nftm.transferNft(foundNft, "D5cBGFoUewTo4yW5AWti6creqxUKGMJCNFn8za3YwJb5");
+
+    // const mintedNft2 = await nftm.mintNft("player_nft");
+    // console.log(mintedNft2.mint.publicKey.toString());
 
     // await pinata.pinataUpload(
     //     "./nfts/citizen_placements_v1/assets/0.gif",
@@ -45,3 +57,13 @@ const run = async() => {
 };
 
 run();
+
+// Minted test 6 2 8:00pm
+//2iAo8YdQ8D3ma7L3Mmm5qzjbGZBoDhh1xHofZYpVZdbE
+//
+//8:36pm
+//FbBzCdJsQoAk7z71RfkdryMdg6kmYihoGaaE6tDuzJDA
+//
+//9:46pm
+//9SVaCLapjbXkVw8FatyjG5iekcwYkGVHahHUuikUZtMo
+//

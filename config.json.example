@@ -1,6 +1,10 @@
 {
+    "base_metadata": "./base_metadata.json",
+    "base_offchain_metadata": "./base_offchain_metadata.json",
+    "nft_cache": "./nft_cache.json",
+    "nft_map": "./nft_map.json",
     "schema": "scratch_dev",
-    "solana_cluster": "devnet",
+    "solana_rpc_endpoint": "<DEVNET>",
     "pinataJwt": "<API KEY>",
     "holdem_token": "<TOKEN ADDRESS>",
     "holdem_payer_address": "<WALLET ADDRESS>"

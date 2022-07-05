@@ -20,7 +20,7 @@ export class HoldemTokenManager {
         this.kp = load_key(key);
         this.connection = new solana.Connection(
             endpoint,
-            'confirmed'
+            'finalized'
         );
 
         this.token = new solana.PublicKey(token_address);
