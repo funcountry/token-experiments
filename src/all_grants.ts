@@ -108,9 +108,9 @@ const run = async() => {
 
     const games:Array<event_data.Game> = await event_data.get_games(db);
 
-    // await doHands(db, games);
-    // await doHosts(db, games);
-    // await doPlayers(db, games);
+    await doHands(db, games);
+    await doHosts(db, games);
+    await doPlayers(db, games);
     await doPlacements(db, games);
 };
 
