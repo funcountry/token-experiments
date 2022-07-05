@@ -23,5 +23,10 @@
         "image": "./nfts/assets/fcp-3rd.gif",
         "animation": "./nfts/assets/fcp-3rd.mp4",
         "metadata": "./nfts/assets/fcp-3rd.json"
+    },
+    "first_out_nft": {
+        "image": "./nfts/assets/fcp-first-out.gif",
+        "animation": "./nfts/assets/fcp-first-out.mp4",
+        "metadata": "./nfts/assets/fcp-first-out.json"
     }
 }

@@ -1,0 +1,19 @@
+{
+  "name": "FIRST OUT NFT Citizen's Token",
+  "symbol": "FCPNFT",
+  "description": "I was eliminated first at Fun Country Poker",
+  "animation_url": "<%= t.animation_uri %>",
+  "properties": {
+    "files": [
+      {
+        "uri": "<%= t.image_uri %>",
+        "type": "image/gif"
+      },
+      {
+        "uri": "<%= t.animation_uri %>",
+        "type": "video/mp4"
+      }
+    ],
+    "category": "image"
+  }
+}
