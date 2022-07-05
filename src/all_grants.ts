@@ -9,6 +9,13 @@ const config = require('../config.json');
  * 3. If not, create a player holdem token grant
  */
 
+async function doHands(db:any, games:any)  {
+    console.log("HAND GRANTS");
+
+    // get all game player entries that haven't been checked
+    const uncheckedHands:event_data.UncheckedHand[] = await event_data.get_unchecked_hands_grants(db, 'aces');
+    console.log(uncheckedHands);
+}
 
 async function doHosts(db:any, games:any)  {
     for(const game of games) {
@@ -61,17 +68,17 @@ async function doPlayers(db:any, games:any)  {
 };
 
 async function doPlacements(db:any, games:any)  {
-    const completedGames = await event_data.get_game_completeds(db);
+    const completedGames = await event_data.get_sng_game_completeds(db);
     // for(const game of games) {
     for(const completedGame of completedGames) {
         try {
             const grants:Array<event_data.PlayerGrant> = await event_data.get_player_placement_grants(db, completedGame.game_id, completedGame.player_id);
 
             if(grants.length > 0) {
-                console.log("Found placement grant for ", completedGame.game_id, completedGame.player_id, completedGame.rank);
+                // console.log("Found placement grant for ", completedGame.game_id, completedGame.player_id, completedGame.rank);
             }
             else {
-                console.log("No placement grant for ", completedGame.game_id, completedGame.player_id, completedGame.rank);
+                // console.log("No placement grant for ", completedGame.game_id, completedGame.player_id, completedGame.rank);
                 if(completedGame.rank == 1) {
                     event_data.create_generic_player_nft_grant(db, completedGame.game_id, completedGame.player_id, 'player_placement_grant', JSON.stringify({'rank': 1}));
                 }
@@ -80,6 +87,11 @@ async function doPlacements(db:any, games:any)  {
                 }
                 else if(completedGame.rank == 3 && completedGame.game_player_count > 3) {
                     event_data.create_generic_player_nft_grant(db, completedGame.game_id, completedGame.player_id, 'player_placement_grant', JSON.stringify({'rank': 3}));
+                }
+                else if(completedGame.rank == completedGame.game_player_count && completedGame.game_player_count >=3) {
+                    console.log("FIRST OUT",completedGame);
+                    event_data.create_generic_player_nft_grant(db, completedGame.game_id, completedGame.player_id, 'first_out_grant', '');
+
                 }
             }
         }
@@ -96,6 +108,7 @@ const run = async() => {
 
     const games:Array<event_data.Game> = await event_data.get_games(db);
 
+    await doHands(db, games);
     await doHosts(db, games);
     await doPlayers(db, games);
     await doPlacements(db, games);
