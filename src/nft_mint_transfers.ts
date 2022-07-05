@@ -33,6 +33,10 @@ async function doGrants(grants:any, nftm:any, db:any) {
                 nft_name = "first_out_nft";
             }
             else if(grant.grant_type == "player_placement_grant") {
+                console.log("FIRST OUT");
+                nft_name = "first_out_nft";
+            }
+            else if(grant.grant_type == "player_placement_grant") {
                 console.log(grant.data);
                 const data:{'rank':number} = JSON.parse(grant.data);
                 console.log("PLAYER PLACEMENT GRANT", data);
