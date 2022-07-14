@@ -80,12 +80,14 @@ async function doPlacements(db:any, games:any)  {
             else {
                 // console.log("No placement grant for ", completedGame.game_id, completedGame.player_id, completedGame.rank);
                 if(completedGame.rank == 1) {
+                    console.log("FIRST PLACE", completedGame);
                     event_data.create_generic_player_nft_grant(db, completedGame.game_id, completedGame.player_id, 'player_placement_grant', JSON.stringify({'rank': 1}));
                 }
-                else if(completedGame.rank == 2 && completedGame.game_player_count > 2) {
+                else if(completedGame.rank == 2 && completedGame.game_player_count > 2) { console.log("SECOND PLACE", completedGame);
                     event_data.create_generic_player_nft_grant(db, completedGame.game_id, completedGame.player_id, 'player_placement_grant', JSON.stringify({'rank': 2}));
                 }
                 else if(completedGame.rank == 3 && completedGame.game_player_count > 3) {
+                    console.log("THIRD PLACE", completedGame);
                     event_data.create_generic_player_nft_grant(db, completedGame.game_id, completedGame.player_id, 'player_placement_grant', JSON.stringify({'rank': 3}));
                 }
                 else if(completedGame.rank == completedGame.game_player_count && completedGame.game_player_count >=3) {

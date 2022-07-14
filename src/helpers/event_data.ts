@@ -199,7 +199,7 @@ export async function get_player_placement_grants(db:any, game_id:string, player
      where
         grants.game_id = $1
         and grants.player_id=$2
-        and grants.grant_type = \'player_placement_grant\';`, [game_id, player_id]);
+        and grants.grant_type IN (\'player_placement_grant\', \'first_out_grant');`, [game_id, player_id]);
 }
 
 export async function get_player_holdem_grant(db:any, game_id:string, player_id:string) {
